@@ -11,6 +11,8 @@ void store();
 void retrieve();
 void erase();
 void files();
+void freespace();
+void run();
 void list();
 void suspend();
 void resume();
@@ -25,9 +27,10 @@ typedef struct {
 } commandType;
 
 static commandType command[] = {
-    {"store", &store},   {"retrieve", &retrieve}, {"erase", &erase},
-    {"files", &files},   {"list", &list},         {"suspend", &suspend},
-    {"resume", &resume}, {"kill", &kill},
+    {"store", &store}, {"retrieve", &retrieve},   {"erase", &erase},
+    {"files", &files}, {"freespace", &freespace}, {"run", &run},
+    {"list", &list},   {"suspend", &suspend},     {"resume", &resume},
+    {"kill", &kill},
 };
 
 void readCliInput() {
@@ -75,8 +78,6 @@ bool checkCommandMatch() {
 
     for (int i = 0; i < commandLength; i++) {
         if (strcmp(command[i].name, buffer[0]) == 0) {
-            // Serial.println("MATCH FOUND with: ");
-            // Serial.println(command[i].name);
             foundMatch = true;
 
             void (*func)() = command[i].func;
@@ -104,6 +105,8 @@ void store() { Serial.println("eyo"); }
 void retrieve() {}
 void erase() {}
 void files() {}
+void freespace() {}
+void run() {}
 void list() {}
 void suspend() {}
 void resume() {}
