@@ -1,6 +1,9 @@
 #include <Arduino.h>
+#include <EEPROM.h>
 
-void readCliInput();
+#include <command_line_interface.hpp>
+
+void writeFatEntry();
 
 void setup() {
     // put your setup code here, to run once:

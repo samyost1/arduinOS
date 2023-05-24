@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#include <command_line_interface.hpp>
+#include <file_management.hpp>
+
 const int BUFSIZE = 12;
 
 static char buffer[4][BUFSIZE];
@@ -18,7 +21,6 @@ void suspend();
 void resume();
 void kill();
 
-void readCliInput();
 bool checkCommandMatch();
 
 typedef struct {
@@ -101,13 +103,19 @@ bool checkCommandMatch() {
 }
 
 // COMMANDS:
-void store() { Serial.println("eyo"); }
-void retrieve() {}
+void store() {
+    // TODO check if all parameters are given
+    Serial.println();
+    Serial.println(buffer[3]);
+    Serial.println();
+    storeFile(buffer[1], atoi(buffer[2]), buffer[3]);
+}
+void retrieve() { retrieveFile(buffer[1]); }
 void erase() {}
-void files() {}
+void files() { printFATTable(); }
 void freespace() {}
 void run() {}
-void list() {}
+void list() { debugPrintEeprom(); }
 void suspend() {}
 void resume() {}
-void kill() {}
+void kill() { debugClearEeprom(); }
