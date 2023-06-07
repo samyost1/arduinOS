@@ -26,13 +26,14 @@ bool checkCommandMatch();
 typedef struct {
     char name[BUFSIZE];
     void (*func)();
+    int numberOfArguments;
 } commandType;
 
 static commandType command[] = {
-    {"store", &store}, {"retrieve", &retrieve},   {"erase", &erase},
-    {"files", &files}, {"freespace", &freespace}, {"run", &run},
-    {"list", &list},   {"suspend", &suspend},     {"resume", &resume},
-    {"kill", &kill},
+    {"store", &store, 2}, {"retrieve", &retrieve, 1},   {"erase", &erase, 1},
+    {"files", &files, 0}, {"freespace", &freespace, 0}, {"run", &run, 1},
+    {"list", &list, 0},   {"suspend", &suspend, 1},     {"resume", &resume, 1},
+    {"kill", &kill, 1},
 };
 
 void readCliInput() {
@@ -41,9 +42,11 @@ void readCliInput() {
         int receivedChar = Serial.read();
 
         if (receivedChar == 32) {
+            // Space Character
             argumentCounter++;
             bufferCounter = 0;
         } else if (receivedChar == 13 || receivedChar == 10) {
+            // End of input
             delayMicroseconds(1042);
             buffer[argumentCounter][bufferCounter] = '\0';
             Serial.read();
@@ -65,25 +68,18 @@ bool checkCommandMatch() {
     bool foundMatch = false;
     int commandLength = sizeof(command) / sizeof(commandType);
 
-    // for (int i = 0; i < sizeof(buffer); i++) {
-    //     Serial.println(buffer[i]);
-    // }
-    // for (int i = 0; i < sizeof(buffer); i++) {
-    //     Serial.println(command[0].name[i]);
-    // }
-    // Serial.println("--------");
-    // Serial.println(buffer[0]);
-    // Serial.println(buffer[1]);
-    // Serial.println(buffer[2]);
-    // Serial.println(buffer[3]);
-    // Serial.println("--------");
-
     for (int i = 0; i < commandLength; i++) {
         if (strcmp(command[i].name, buffer[0]) == 0) {
-            foundMatch = true;
+            // TODO check if all parameters are given
+            if (argumentCounter != command[i].numberOfArguments) {
+                Serial.print(command[i].numberOfArguments);
+                Serial.println(" arguments required");
+            } else {
+                foundMatch = true;
 
-            void (*func)() = command[i].func;
-            func();
+                void (*func)() = command[i].func;
+                func();
+            }
         }
     }
     if (!foundMatch) {
@@ -103,17 +99,11 @@ bool checkCommandMatch() {
 }
 
 // COMMANDS:
-void store() {
-    // TODO check if all parameters are given
-    Serial.println();
-    Serial.println(buffer[3]);
-    Serial.println();
-    storeFile(buffer[1], atoi(buffer[2]), buffer[3]);
-}
+void store() { storeFile(buffer[1], atoi(buffer[2]) /*, buffer[3]*/); }
 void retrieve() { retrieveFile(buffer[1]); }
-void erase() {}
+void erase() { eraseFile(buffer[1]); }
 void files() { printFATTable(); }
-void freespace() {}
+void freespace() { freespaceEEPROM(); }
 void run() {}
 void list() { debugPrintEeprom(); }
 void suspend() {}

@@ -81,8 +81,6 @@ int findAvailablePosition(int fileSize) {
         }
     }
 
-    Serial.println("noOfFiles:");
-    Serial.println(noOfFiles);
     // Check if there is enough space after last FAT entry
     int lastFileEnd =
         FAT[noOfFiles - 1].beginPosition + FAT[noOfFiles - 1].length;
@@ -102,20 +100,40 @@ int findAvailablePosition(int fileSize) {
 int findFileInFAT(const char* fileName) {
     for (int i = 0; i < noOfFiles; i++) {
         if (strcmp(FAT[i].name, fileName) == 0) {
-            // return FAT[i].beginPosition;
             return i;  // Return the index of the file in FAT
         }
     }
     return -1;  // File not found in FAT
 }
 
-void storeFile(const char* filename, int fileSize, const char* fileData) {
+void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
+    Serial.println("Input File Data:");
+    Serial.print(">");
+    char fileData[fileSize];
+    while (Serial.available() == 0) {
+        // Wait till end of input
+    }
+    // char fileData[Serial.available()]; if not longer than fileSize
+
+    for (int i = 0; i < fileSize; i++) {
+        if (Serial.available() != 0) {
+            fileData[i] = Serial.read();
+        } else {
+            fileData[i] = 32;
+        }
+        delayMicroseconds(1042);
+    }
+
+    // Clear Serial buffer
+    while (Serial.available()) {
+        Serial.read();
+        delayMicroseconds(1042);
+    }
+
     Serial.print("WriteFile for File: '");
     Serial.print(filename);
     Serial.print("', size: '");
     Serial.print(fileSize);
-    Serial.print("', data: '");
-    Serial.print(fileData);
     Serial.println("'.");
 
     readFAT();  // Ensure FAT is up to date with EEPROM
@@ -125,7 +143,6 @@ void storeFile(const char* filename, int fileSize, const char* fileData) {
             "Maximum number of files reached. Cannot store the file.");
         return;
     }
-
     if (findFileInFAT(filename) != -1) {
         Serial.println(
             "File with the same name already exists. Please choose a different "
@@ -139,11 +156,6 @@ void storeFile(const char* filename, int fileSize, const char* fileData) {
         Serial.println("Error: No space left for file.");
         return;
     }
-
-    Serial.println("Postion:");
-    Serial.println(position);
-    Serial.println();
-
     // --------------------------
 
     // fill the file info in a FAT entry
@@ -154,25 +166,18 @@ void storeFile(const char* filename, int fileSize, const char* fileData) {
 
     // write the FAT entry to the EEPROM
     FAT[noOfFiles] = file;
-    int fatAddress = sizeof(FATEntry) * noOfFiles + 1;
-    Serial.print("fatAddress:");
-    Serial.println(fatAddress);
-    EEPROM.put(fatAddress, file);
+    // int fatAddress = sizeof(FATEntry) * noOfFiles + 1;
+    // EEPROM.put(fatAddress, file);
     noOfFiles++;
+    sort();
     writeFAT();
-
     // write data to the EEPROM
     fileSize++;
     for (int i = 0; i < fileSize; i++) {
         EEPROM.write(position, fileData[i]);
         position++;
     }
-    // --------------------------
 
-    Serial.print("Filename:\t");
-    Serial.println(filename);
-    Serial.print("Size:\t\t");
-    Serial.println(fileSize);
     Serial.println("Storing done.");
 }
 
@@ -196,6 +201,41 @@ void retrieveFile(const char* filename) {
     }
     Serial.print("\n");
     Serial.println("End of File Content.");
+}
+
+void eraseFile(const char* fileName) {
+    // Check if file exists
+    readFAT();
+    int fatIndex = findFileInFAT(fileName);
+    if (fatIndex == -1) {
+        Serial.println("File not found.");
+        return;
+    }
+
+    for (int i = fatIndex; i < noOfFiles; i++) {
+        FAT[i] = FAT[i + 1];
+    }
+    FATEntry emptyEntry;
+    FAT[noOfFiles - 1] = emptyEntry;
+    noOfFiles--;
+
+    writeFAT();
+    Serial.print("Erased: ");
+    Serial.println(fileName);
+}
+
+void freespaceEEPROM() {
+    readFAT();
+
+    int systemMemory = (sizeof(FATEntry) * MAX_FILES) + 1;
+
+    int usedSpace = 0;
+    for (int i = 0; i < noOfFiles; i++) {
+        usedSpace += FAT[i].length;
+    }
+    int totalAvailable = EEPROM.length() - systemMemory - usedSpace;
+    Serial.print("Available space: ");
+    Serial.println(totalAvailable);
 }
 
 void debugClearEeprom() {
@@ -242,7 +282,6 @@ void debugPrintEeprom() {
             Serial.print('-');
             Serial.println(i);
             Serial.println(EEPROM.read(i));
-            // Serial.println();
         }
     }
     Serial.println("End of EEPROM");
