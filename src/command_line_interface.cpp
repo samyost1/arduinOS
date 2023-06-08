@@ -2,6 +2,7 @@
 
 #include <command_line_interface.hpp>
 #include <file_management.hpp>
+#include <stack.hpp>
 
 const int BUFSIZE = 12;
 
@@ -21,6 +22,8 @@ void suspend();
 void resume();
 void kill();
 
+void debugStack();
+
 bool checkCommandMatch();
 
 typedef struct {
@@ -33,7 +36,7 @@ static commandType command[] = {
     {"store", &store, 2}, {"retrieve", &retrieve, 1},   {"erase", &erase, 1},
     {"files", &files, 0}, {"freespace", &freespace, 0}, {"run", &run, 1},
     {"list", &list, 0},   {"suspend", &suspend, 1},     {"resume", &resume, 1},
-    {"kill", &kill, 1},
+    {"kill", &kill, 1},   {"stack", &debugStack, 0},
 };
 
 void readCliInput() {
@@ -70,7 +73,6 @@ bool checkCommandMatch() {
 
     for (int i = 0; i < commandLength; i++) {
         if (strcmp(command[i].name, buffer[0]) == 0) {
-            // TODO check if all parameters are given
             if (argumentCounter != command[i].numberOfArguments) {
                 Serial.print(command[i].numberOfArguments);
                 Serial.println(" arguments required");
@@ -109,3 +111,5 @@ void list() { debugPrintEeprom(); }
 void suspend() {}
 void resume() {}
 void kill() { debugClearEeprom(); }
+
+void debugStack() { debugTestStack(); }
