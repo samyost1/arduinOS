@@ -1,13 +1,37 @@
 #include <stack.hpp>
 
-#define STACKSIZE 32
+// #define STACKSIZE 32
 
 byte stack[STACKSIZE];
 byte sp = 0;
 
-// TODO: nu heb ik big-endian gebruikt maar miss is arduino little-endian
 void pushByte(byte b) { stack[sp++] = b; }
 byte popByte() { return stack[--sp]; }
+
+
+float popVal(int type) {
+    // int type = popByte();
+    switch (type) {
+        case 1:  // Char
+        {
+            return popChar();
+            break;
+        }
+        case 2:  // Int
+        {
+            return popInt();
+            break;
+
+        }
+        case 4:  // Float
+        {
+            return popFloat();
+            break;
+        }
+        default:
+            break;
+    }
+}
 
 // CHAR
 void pushChar(char c) {
@@ -17,43 +41,8 @@ void pushChar(char c) {
     pushByte(0x01);  // push char
 }
 char popChar() {
-    popByte();         // pop type Char
+    // popByte();         // pop type Char
     return popByte();  // pop Char
-}
-
-float popVal() {
-    int type = popByte();
-    switch (type) {
-        case 1:  // Char
-        {
-            return popByte();
-            break;
-        }
-        case 2:  // Int
-        {
-            // popByte();  // pop Int
-            byte lb = popByte();
-            byte hb = popByte();
-            int i = word(hb, lb);
-            return (int)i;
-            break;
-        }
-        case 4:  // Float
-        {
-            // popByte(); // pop Float
-            byte b[4];
-            for (int i = 0; i < 4; i++) {
-                b[i] = popByte();  // pop bytes beginnend met lowbytes
-            }
-
-            float *f = (float *)b;
-
-            return *f;
-            break;
-        }
-        default:
-            break;
-    }
 }
 
 // INT
@@ -65,7 +54,7 @@ void pushInt(int i) {
     pushByte(0x02);  // push int
 }
 int popInt() {
-    popByte();  // pop Int
+    // popByte();  // pop Int
     byte lb = popByte();
     byte hb = popByte();
     int i = word(hb, lb);
@@ -77,19 +66,24 @@ void pushFloat(float f) {
     byte *b = (byte *)&f;
     for (int i = 3; i >= 0; i--) {
         // push bytes beginnend met highbytes
+        // Serial.println(b[i]);
         pushByte(b[i]);
     }
     pushByte(0x04);  // push float
 }
 float popFloat() {
-    popByte();  // pop Float
+    // popByte();  // pop Float
     byte b[4];
     for (int i = 0; i < 4; i++) {
-        b[i] = popByte();  // pop bytes beginnend met lowbytes
+        byte temp = popByte();
+        // Serial.println(temp);
+        b[i] = temp;  // pop bytes beginnend met lowbytes
     }
 
     float *f = (float *)b;
 
+    // Serial.print("float: ");
+    // Serial.println(*f);
     return *f;
 }
 
@@ -103,11 +97,13 @@ void pushString(char *s) {
     pushByte(0x03);           // push string
 }
 char *popString() {
-    popByte();               // pop type String
+    // popByte();               // pop type String
     int length = popByte();  // pop length
     char *temp = new char[length];
     for (int i = length - 1; i >= 0; i--) {
-        temp[i] = (char)popByte();  // pop de letters incl. terminating zero
+        byte letter = popByte();
+        Serial.println((char)letter);
+        temp[i] = letter;  // pop de letters incl. terminating zero
     }
     return temp;
 }
@@ -123,12 +119,13 @@ void debugTestStack() {
     // // pop int en print die
     // Serial.print("\nInt: ");
     // Serial.println(popInt());
-    // // push string
+    // push string
     // // char temp[5] = {'h', 'e', 'l', 'l', 'o'};
-    // char temp[6] = "hello";
+    char temp[6] = "hello";
     // pushString(temp);
     // // pop string en print die
     // Serial.print("\n String:");
+    // popByte(); // pop type string
     // char *tempPop = popString();
     // Serial.println(strlen(tempPop));
     // // for (int i = 0; i < 5; i++) {
@@ -142,14 +139,16 @@ void debugTestStack() {
     // Serial.print("\n FLoat:");
     // Serial.println(popFloat(), 4);
     // push int
-    pushInt(300);
-    // pop die int met popVal()
-    Serial.print("\n Int:");
-    Serial.println(popVal());
-    pushChar('H');
-    Serial.print("\n Char:");
-    Serial.println(popVal());
+    // pushInt(300);
+    // Serial.print("\n Int:");
+    // int type = popByte();
+    // Serial.println(popVal(type));
+    // pushChar('H');
+    // Serial.print("\n Char:");
+    // type = popByte();
+    // Serial.println((char)popVal(type));
     pushFloat(1.2345);
     Serial.print("\n Float:");
-    Serial.println(popVal());
+    int type = popByte();
+    Serial.println(popVal(type));
 }

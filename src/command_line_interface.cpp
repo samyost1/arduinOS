@@ -2,7 +2,8 @@
 
 #include <command_line_interface.hpp>
 #include <file_management.hpp>
-#include <stack.hpp>
+#include <memory.hpp>
+#include <process.hpp>
 
 const int BUFSIZE = 12;
 
@@ -22,7 +23,8 @@ void suspend();
 void resume();
 void kill();
 
-void debugStack();
+// void debugStack();
+void debugMemory();
 
 bool checkCommandMatch();
 
@@ -36,7 +38,7 @@ static commandType command[] = {
     {"store", &store, 2}, {"retrieve", &retrieve, 1},   {"erase", &erase, 1},
     {"files", &files, 0}, {"freespace", &freespace, 0}, {"run", &run, 1},
     {"list", &list, 0},   {"suspend", &suspend, 1},     {"resume", &resume, 1},
-    {"kill", &kill, 1},   {"stack", &debugStack, 0},
+    {"kill", &kill, 1},   {"memory", &debugMemory, 0},
 };
 
 void readCliInput() {
@@ -106,10 +108,11 @@ void retrieve() { retrieveFile(buffer[1]); }
 void erase() { eraseFile(buffer[1]); }
 void files() { printFATTable(); }
 void freespace() { freespaceEEPROM(); }
-void run() {}
+void run() {runProcess();}
 void list() { debugPrintEeprom(); }
 void suspend() {}
 void resume() {}
 void kill() { debugClearEeprom(); }
 
-void debugStack() { debugTestStack(); }
+void debugMemory() { debugTestMemory(); }
+// void debugStack() { debugTestStack(); }

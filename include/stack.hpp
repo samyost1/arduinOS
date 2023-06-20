@@ -1,4 +1,8 @@
 #include <Arduino.h>
+#define STACKSIZE 32
+// const int STACKSIZE;
+byte stack[STACKSIZE];
+
 void pushByte(byte b);
 byte popByte();
 
@@ -6,7 +10,7 @@ byte popByte();
 void pushChar(char c);
 char popChar();
 
-float popVal();
+float popVal(int type);
 
 // INT
 void pushInt(int i);
