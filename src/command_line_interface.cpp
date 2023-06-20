@@ -108,11 +108,12 @@ void retrieve() { retrieveFile(buffer[1]); }
 void erase() { eraseFile(buffer[1]); }
 void files() { printFATTable(); }
 void freespace() { freespaceEEPROM(); }
-void run() {runProcess();}
+void run() {runProcess(buffer[1]);}
 void list() { debugPrintEeprom(); }
-void suspend() {}
-void resume() {}
-void kill() { debugClearEeprom(); }
+void suspend() { suspendProcess();}
+void resume() { resumeProcess();}
+void kill() { stopProcess(); }
+// void kill() { debugClearEeprom(); }
 
 void debugMemory() { debugTestMemory(); }
 // void debugStack() { debugTestStack(); }

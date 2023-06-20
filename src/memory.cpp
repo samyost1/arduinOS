@@ -100,8 +100,8 @@ void addMemoryEntry(byte name, int id) {
     // index is noOfVars if not found in memory
     index = (index == -1) ? noOfVars : index;
 
-    int type = popByte();
-    int size = (type != 3) ? type : popByte();
+    int type = popByte(id);
+    int size = (type != 3) ? type : popByte(id);
     sortMemory();
 
     int newAdress = (noOfVars > 0) ? findAvailableSpace(size) : 0;
@@ -125,23 +125,23 @@ void addMemoryEntry(byte name, int id) {
     switch (type) {
         case 1: {
             /* char */
-            saveChar(popVal(type), newAdress);
+            saveChar(popVal(id, type), newAdress);
             break;
         }
         case 2: {
             /* int */
-            saveInt(popVal(type), newAdress);
+            saveInt(popVal(id, type), newAdress);
             break;
         }
         case 3: {
             /* string */
-            char *s = popString();
+            char *s = popString(id);
             saveString(s, newAdress);
             break;
         }
         case 4: {
             /* float */
-            saveFloat(popVal(type), newAdress);
+            saveFloat(popVal(id, type), newAdress);
             break;
         }
         default:
@@ -164,22 +164,22 @@ void retrieveMemoryEntry(byte name, int id) {
     switch (type) {
         case 1:
             /* char */
-            pushChar(loadChar(memoryTable[index].adress));
+            pushChar(id, loadChar(memoryTable[index].adress));
             break;
 
         case 2:
             /* int */
-            pushInt(loadInt(memoryTable[index].adress));
+            pushInt(id, loadInt(memoryTable[index].adress));
             break;
 
         case 3:
             /* string */
-            pushString(loadString(memoryTable[index].adress, length));
+            pushString(id, loadString(memoryTable[index].adress, length));
             break;
 
         case 4:
             /* float */
-            pushFloat(loadFloat(memoryTable[index].adress));
+            pushFloat(id, loadFloat(memoryTable[index].adress));
             break;
 
         default:
@@ -240,12 +240,12 @@ void debugTestMemory() {
     // print1(popVal(type));
     // print1();
 
-    pushChar('h');
-    addMemoryEntry('a', 12);
-    retrieveMemoryEntry('a', 12);
-    int type = popByte();
-    print2("Char: ");
-    print1((char)popVal(type));
+    // pushChar('h');
+    // addMemoryEntry('a', 12);
+    // retrieveMemoryEntry('a', 12);
+    // int type = popByte();
+    // print2("Char: ");
+    // print1((char)popVal(type));
 
     // pushFloat(1.2345);
     // addMemoryEntry('a', 12);

@@ -1,31 +1,30 @@
+#include <Arduino.h>
+
+#include <process.hpp>
 #include <stack.hpp>
 
-// #define STACKSIZE 32
-
-byte stack[STACKSIZE];
+byte stack[PROCESS_TABLE_SIZE][STACKSIZE];
 byte sp = 0;
 
-void pushByte(byte b) { stack[sp++] = b; }
-byte popByte() { return stack[--sp]; }
+void pushByte(int procID, byte b) { stack[procID][sp++] = b; }
+byte popByte(int procID) { return stack[procID][--sp]; }
 
-
-float popVal(int type) {
+float popVal(int procID, int type) {
     // int type = popByte();
     switch (type) {
         case 1:  // Char
         {
-            return popChar();
+            return popChar(procID);
             break;
         }
         case 2:  // Int
         {
-            return popInt();
+            return popInt(procID);
             break;
-
         }
         case 4:  // Float
         {
-            return popFloat();
+            return popFloat(procID);
             break;
         }
         default:
@@ -34,48 +33,48 @@ float popVal(int type) {
 }
 
 // CHAR
-void pushChar(char c) {
+void pushChar(int procID, char c) {
     // 1. data pushen
     // 2. type pushen
-    pushByte(c);
-    pushByte(0x01);  // push char
+    pushByte(procID, c);
+    pushByte(procID,0x01);  // push char
 }
-char popChar() {
+char popChar(int procID) {
     // popByte();         // pop type Char
-    return popByte();  // pop Char
+    return popByte(procID);  // pop Char
 }
 
 // INT
-void pushInt(int i) {
+void pushInt(int procID, int i) {
     // byte lb = lowByte(i);
     // byte hb = highByte(i);
-    pushByte(highByte(i));
-    pushByte(lowByte(i));
-    pushByte(0x02);  // push int
+    pushByte(procID, highByte(i));
+    pushByte(procID, lowByte(i));
+    pushByte(procID, 0x02);  // push int
 }
-int popInt() {
+int popInt(int procID) {
     // popByte();  // pop Int
-    byte lb = popByte();
-    byte hb = popByte();
+    byte lb = popByte(procID);
+    byte hb = popByte(procID);
     int i = word(hb, lb);
     return i;
 }
 
 // FLOAT
-void pushFloat(float f) {
+void pushFloat(int procID, float f) {
     byte *b = (byte *)&f;
     for (int i = 3; i >= 0; i--) {
         // push bytes beginnend met highbytes
         // Serial.println(b[i]);
-        pushByte(b[i]);
+        pushByte(procID, b[i]);
     }
-    pushByte(0x04);  // push float
+    pushByte(procID, 0x04);  // push float
 }
-float popFloat() {
+float popFloat(int procID) {
     // popByte();  // pop Float
     byte b[4];
     for (int i = 0; i < 4; i++) {
-        byte temp = popByte();
+        byte temp = popByte(procID);
         // Serial.println(temp);
         b[i] = temp;  // pop bytes beginnend met lowbytes
     }
@@ -88,20 +87,20 @@ float popFloat() {
 }
 
 // STRING
-void pushString(char *s) {
+void pushString(int procID, char *s) {
     for (int i = 0; i < strlen(s); i++) {
-        pushByte(s[i]);  // push letters
+        pushByte(procID, s[i]);  // push letters
     }
-    pushByte(0x00);           // push terminating zero
-    pushByte(strlen(s) + 1);  // push length
-    pushByte(0x03);           // push string
+    pushByte(procID, 0x00);           // push terminating zero
+    pushByte(procID, strlen(s) + 1);  // push length
+    pushByte(procID, 0x03);           // push string
 }
-char *popString() {
+char *popString(int procID) {
     // popByte();               // pop type String
-    int length = popByte();  // pop length
+    int length = popByte(procID);  // pop length
     char *temp = new char[length];
     for (int i = length - 1; i >= 0; i--) {
-        byte letter = popByte();
+        byte letter = popByte(procID);
         Serial.println((char)letter);
         temp[i] = letter;  // pop de letters incl. terminating zero
     }
@@ -147,8 +146,9 @@ void debugTestStack() {
     // Serial.print("\n Char:");
     // type = popByte();
     // Serial.println((char)popVal(type));
-    pushFloat(1.2345);
+    int procID = 0;
+    pushFloat(procID, 1.2345);
     Serial.print("\n Float:");
-    int type = popByte();
-    Serial.println(popVal(type));
+    int type = popByte(procID);
+    Serial.println(popVal(procID, type));
 }

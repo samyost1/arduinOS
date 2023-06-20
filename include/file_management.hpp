@@ -1,4 +1,5 @@
 void writeFatEntry();
+int findFileInFAT(const char* fileName);
 void storeFile(const char* filename, int fileSize /*, const char* fileData*/);
 void retrieveFile(const char* filename);
 void eraseFile(const char* fileName);
