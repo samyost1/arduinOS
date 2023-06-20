@@ -110,10 +110,10 @@ void files() { printFATTable(); }
 void freespace() { freespaceEEPROM(); }
 void run() {runProcess(buffer[1]);}
 void list() { debugPrintEeprom(); }
-void suspend() { suspendProcess();}
-void resume() { resumeProcess();}
-void kill() { stopProcess(); }
-// void kill() { debugClearEeprom(); }
+void suspend() { suspendProcess(atoi(buffer[1]));}
+void resume() { resumeProcess(atoi(buffer[1]));}
+// void kill() { stopProcess(atoi(buffer[1])); }
+void kill() { debugClearEeprom(); }
 
 void debugMemory() { debugTestMemory(); }
 // void debugStack() { debugTestStack(); }

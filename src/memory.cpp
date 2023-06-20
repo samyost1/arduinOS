@@ -19,7 +19,7 @@ struct variable {
     int procID;
 };
 
-const int MEMORYSIZE = 1;
+const int MEMORYSIZE = 10;
 const int MAXRAM = sizeof(variable) * MEMORYSIZE;
 int noOfVars = 0;
 
