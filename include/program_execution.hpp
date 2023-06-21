@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include <process.hpp>
+#include <instruction_set.h>
 
 void runProcesses();
 
