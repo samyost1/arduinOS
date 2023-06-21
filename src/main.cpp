@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include <EEPROM.h>
+// #include <EEPROM.h>
 
 #include <command_line_interface.hpp>
+#include <program_execution.hpp>
 
 void writeFatEntry();
 
@@ -21,4 +22,6 @@ void loop() {
     // Serial.println(sizeof(command));
 
     readCliInput();
+
+    runProcesses();
 }
