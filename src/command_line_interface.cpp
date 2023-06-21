@@ -1,9 +1,5 @@
-#include <Arduino.h>
-
 #include <command_line_interface.hpp>
-#include <file_management.hpp>
-#include <memory.hpp>
-#include <process.hpp>
+
 
 const int BUFSIZE = 12;
 

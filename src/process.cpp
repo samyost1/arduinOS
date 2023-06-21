@@ -1,11 +1,5 @@
-
-
-#include <Arduino.h>
-
-#include <file_management.hpp>
 #include <process.hpp>
-#include <stack.hpp>
-#include <memory.hpp>
+
 
 // struct process {
 //     char name[12];
@@ -63,6 +57,7 @@ void runProcess(const char *filename) {
     }
     // Check if file exists
     int fileIndex = findFileInFAT(filename);
+    
     if (fileIndex == -1) {
         Serial.println("File does not exist.");
         return;
@@ -78,7 +73,7 @@ void runProcess(const char *filename) {
     newProcess.pc = 0;  // de PC is het beginadres van het bestand (uit de FAT)
     newProcess.fp = 0;
     newProcess.sp = 0;  // de SP wordt op 0 gezet
-    newProcess.address = 0;
+    newProcess.address = FAT[fileIndex].beginPosition;
 
     processTable[noOfProc++] = newProcess;
 

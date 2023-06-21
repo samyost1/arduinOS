@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include <memory.hpp>
 
 #define print2(w) Serial.print(w);

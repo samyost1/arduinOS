@@ -1,6 +1,3 @@
-#include <Arduino.h>
-
-#include <process.hpp>
 #include <stack.hpp>
 
 byte stack[PROCESS_TABLE_SIZE][STACKSIZE];

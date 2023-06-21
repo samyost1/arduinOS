@@ -1,4 +1,10 @@
+#ifndef PROCESS_H
+#define PROCESS_H
 
+#include <Arduino.h>
+#include <file_management.hpp>
+#include <memory.hpp>
+#include <stack.hpp>
 
 const int PROCESS_TABLE_SIZE = 10;
 struct process {
@@ -19,3 +25,4 @@ void resumeProcess(int id);
 void stopProcess(int id);
 void showProcessList();
 
+#endif  // PROCESS_H

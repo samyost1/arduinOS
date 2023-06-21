@@ -1,3 +1,6 @@
+#ifndef MEMORY_H
+#define MEMORY_H
+
 #include <Arduino.h>
 
 #include <stack.hpp>
@@ -16,8 +19,10 @@ int loadInt(int adress);
 void saveFloat(float f, int adress);
 float loadFloat(int adress);
 void saveString(char* s, int adress);
-char *loadString(int adress, int length);
+char* loadString(int adress, int length);
 
 void debugTestMemory();
 
 void sortMemory();
+
+#endif  // MEMORY_H

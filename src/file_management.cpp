@@ -1,14 +1,13 @@
-#include <Arduino.h>
-#include <EEPROM.h>
+#include <file_management.hpp>
 
-// Structure for a FAT entry
-struct FATEntry {
-    char name[12];
-    int beginPosition;
-    int length;
-};
+// // Structure for a FAT entry
+// struct FATEntry {
+//     char name[12];
+//     int beginPosition;
+//     int length;
+// };
 
-const int MAX_FILES = 10;
+// const int MAX_FILES = 10;
 int noOfFiles;
 
 FATEntry FAT[MAX_FILES];
@@ -67,7 +66,6 @@ int findAvailablePosition(int fileSize) {
 
     // Check if there is enough space before first FAT entry
     if (FAT[0].beginPosition - systemMemory >= fileSize) {
-        Serial.println("TEST_1");
         return systemMemory;
     }
 
@@ -76,7 +74,6 @@ int findAvailablePosition(int fileSize) {
         int availableSpace =
             FAT[i + 1].beginPosition - (FAT[i].beginPosition + FAT[i].length);
         if (availableSpace >= fileSize) {
-            Serial.println("TEST_2");
             return FAT[i].beginPosition + FAT[i].length;
         }
     }
@@ -85,7 +82,6 @@ int findAvailablePosition(int fileSize) {
     int lastFileEnd =
         FAT[noOfFiles - 1].beginPosition + FAT[noOfFiles - 1].length;
     if (EEPROM.length() - lastFileEnd >= fileSize) {
-        Serial.println("TEST_3");
         if (noOfFiles == 0) {
             return lastFileEnd + systemMemory;
         }
@@ -93,11 +89,11 @@ int findAvailablePosition(int fileSize) {
     }
 
     // No available space found
-    Serial.println("TEST_4");
     return -1;
 }
 
 int findFileInFAT(const char* fileName) {
+    readFAT();  // Load FAT from EEPROM
     for (int i = 0; i < noOfFiles; i++) {
         if (strcmp(FAT[i].name, fileName) == 0) {
             return i;  // Return the index of the file in FAT

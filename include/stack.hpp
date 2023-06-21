@@ -1,4 +1,10 @@
-#define STACKSIZE 32
+#ifndef STACK_H
+#define STACK_H
+
+#include <Arduino.h>
+#include <process.hpp>
+
+const int STACKSIZE = 32;
 
 void pushByte(int procID, byte b);
 byte popByte(int procID);
@@ -22,3 +28,5 @@ void pushString(int procID, char *s);
 char *popString(int procID);
 
 void debugTestStack();
+
+#endif  // STACK_H

@@ -1,6 +1,3 @@
-
-
-#include <Arduino.h>
 #include <program_execution.hpp>
 
 void execute(int index)
@@ -11,6 +8,12 @@ void execute(int index)
     // Dit gaat het handigst met een switch...case-structuur. 
     // Voor iedere instructie moet een stukje Arduino-code geschreven worden dat eventuele argumenten inleest, en de instructie uitvoert.
     // Ook moet de PC telkens aangepast worden.
+
+    int address = processTable[index].address;
+    byte currentCommand = EEPROM.read(address + processTable[index].pc);
+    processTable[index].pc++;
+    Serial.print("Current command: ");
+    Serial.println(currentCommand);
 }
 
 void runProcesses()

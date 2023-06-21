@@ -16,10 +16,6 @@ void setup() {
 void loop() {
     // put your main code here, to run repeatedly:
 
-    // Serial.print("Hello World!\n");
-    // char commandTest = command[1].name[12];
-    // Serial.println(command[1].name[12]);
-    // Serial.println(sizeof(command));
 
     readCliInput();
 
