@@ -8,7 +8,7 @@ void writeFatEntry();
 void setup() {
     // put your setup code here, to run once:
     Serial.begin(9600);
-
+    // TODO load everything from EEPROM
     Serial.println("\nArduinOS 1.0 ready.\n");
 }
 

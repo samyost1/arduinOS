@@ -4,3 +4,4 @@ void runProcess(const char* filename);
 void suspendProcess(int id);
 void resumeProcess(int id);
 void stopProcess(int id);
+void showProcessList();

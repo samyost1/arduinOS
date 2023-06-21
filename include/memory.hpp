@@ -7,6 +7,7 @@ int findAvailableSpace(int size);
 
 void addMemoryEntry(byte name, int id);
 void retrieveMemoryEntry(byte name, int id);
+void deleteAllVars(int id);
 
 void saveChar(char c, int adress);
 char loadChar(int adress);

@@ -37,7 +37,7 @@ void pushChar(int procID, char c) {
     // 1. data pushen
     // 2. type pushen
     pushByte(procID, c);
-    pushByte(procID,0x01);  // push char
+    pushByte(procID, 0x01);  // push char
 }
 char popChar(int procID) {
     // popByte();         // pop type Char
@@ -107,6 +107,8 @@ char *popString(int procID) {
     return temp;
 }
 
+// --------------------------------------------------
+// Debug functions
 void debugTestStack() {
     // // Push int
     // pushInt(8);

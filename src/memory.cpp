@@ -42,6 +42,8 @@ void sortMemory() {
     }
 }
 
+void clear(int id) {}
+
 int findAvailableSpace(int size) {
     if (memoryTable[0].adress >= size) {
         Serial.println("Space found before first entry");
@@ -231,6 +233,20 @@ char *loadString(int adress, int length) {
     return temp;
 }
 
+void deleteAllVars(int id) {
+    // Delete all variables for a process
+    for (int j = 0; j < noOfVars; j++) {
+        if (memoryTable[j].procID == id) {
+            for (int i = j; i < noOfVars; i++) {
+                memoryTable[i] = memoryTable[i + 1];
+            }
+            noOfVars--;
+        }
+    }
+}
+
+// --------------------------------------------------
+// Debug functions
 void debugTestMemory() {
     // pushInt(300);
     // addMemoryEntry('a', 12);
