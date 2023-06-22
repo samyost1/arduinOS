@@ -77,11 +77,11 @@ void execute(int index) {
             byte b[4];
             for (int i = 3; i >= 0; i--) {
                 byte temp = EEPROM.read(address + processTable[index].pc++);
-                // Serial.println(temp);
                 b[i] = temp;  // pop bytes beginnend met lowbytes
             }
             float* f = (float*)b;
-
+            // Serial.print("Float to be pushed: ");
+            // Serial.println(*f);
             pushFloat(procID, stackP, *f);
             break;
         }
@@ -89,8 +89,9 @@ void execute(int index) {
             Serial.print(F("Process with pid: "));
             Serial.print(procID);
             Serial.println(F(" is finished."));
-            stopProcess(procID);
             deleteAllVars(procID);
+            stopProcess(procID);
+            Serial.println();
             break;
         }
         case 51 ... 52: {  // PRINT and PRINTLN
@@ -98,20 +99,23 @@ void execute(int index) {
             // Serial.println(type);
             int type = popByte(procID, stackP);
             switch (type) {
-                case CHAR:
+                case CHAR: {
                     Serial.print(popChar(procID, stackP));
                     break;
-                case INT:
+                }
+                case INT: {
                     Serial.print(popInt(procID, stackP));
                     break;
-                case STRING:
+                }
+                case STRING: {
                     int size = popByte(procID, stackP);
                     Serial.print(popString(procID, stackP, size));
                     break;
-                case FLOAT:
+                }
+                case FLOAT: {
                     Serial.print(popFloat(procID, stackP), 5);
                     break;
-
+                }
                 default:
                     break;
             }
@@ -121,14 +125,15 @@ void execute(int index) {
             break;
         }
         case SET: {
-            Serial.println(F("Set case"));
+            // Serial.println(F("Set case"));
             char name = EEPROM.read(address + processTable[index].pc++);
 
             addMemoryEntry(name, procID, stackP);
             break;
         }
         case GET: {
-            Serial.println(F("Get case"));
+            // Serial.println(F("Get case"));
+
             char name = EEPROM.read(address + processTable[index].pc++);
             retrieveMemoryEntry(name, procID, stackP);
             break;
@@ -146,15 +151,20 @@ void execute(int index) {
                     ? type
                     : unary[findOperatorFunc(currentCommand)].returnType;
             switch (returnType) {
-                case CHAR:
+                case CHAR: {
                     pushChar(procID, stackP, (char)newValue);
                     break;
-                case INT:
+                }
+                case INT: {
                     pushInt(procID, stackP, (int)newValue);
                     break;
-                case FLOAT:
+                }
+                case FLOAT: {
+                    // Serial.print("NewValue: ");
+                    // Serial.println((float)newValue);
                     pushFloat(procID, stackP, (float)newValue);
                     break;
+                }
                 default:
                     Serial.println(F("Execute: Default case"));
                     break;

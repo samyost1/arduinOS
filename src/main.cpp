@@ -4,7 +4,7 @@
 #include <command_line_interface.hpp>
 #include <program_execution.hpp>
 
-void writeFatEntry();
+// void writeFatEntry();
 
 void setup() {
     // put your setup code here, to run once:

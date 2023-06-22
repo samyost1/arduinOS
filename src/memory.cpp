@@ -123,8 +123,8 @@ void addMemoryEntry(byte name, int procID, int &stackP) {
         case 3: {
             /* string */
             char *s = popString(procID, stackP, size);
-            Serial.print(F("Popped string: "));
-            Serial.println(s);
+            // Serial.print(F("Popped string: "));
+            // Serial.println(s);
             saveString(s, newAdress);
             break;
         }

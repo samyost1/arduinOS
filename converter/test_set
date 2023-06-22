@@ -1,4 +1,4 @@
-"test" SET q
-"passed" SET q
-GET q PRINTLN 
+123.45 SET f
+GET f INCREMENT SET f 
+GET f PRINTLN 
 STOP

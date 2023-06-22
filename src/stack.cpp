@@ -3,9 +3,7 @@
 byte stack[PROCESS_TABLE_SIZE][STACKSIZE] = {0};
 // byte sp = 0;
 
-void pushByte(int procID, int& sp, byte b) {
-    stack[procID][sp++] = b;
-}
+void pushByte(int procID, int& sp, byte b) { stack[procID][sp++] = b; }
 byte popByte(int procID, int& sp) {
     // Serial.print(F("popByte() sp = "));
     // Serial.print(sp);
@@ -74,7 +72,6 @@ void pushFloat(int procID, int& sp, float f) {
     byte* b = (byte*)&f;
     for (int i = 3; i >= 0; i--) {
         // push bytes beginnend met highbytes
-        // Serial.println(b[i]);
         pushByte(procID, sp, b[i]);
     }
     pushByte(procID, sp, 0x04);  // push float
@@ -100,7 +97,6 @@ void pushString(int procID, int& sp, char* s) {
     for (int i = 0; i < strlen(s); i++) {
         pushByte(procID, sp, s[i]);  // push letters
     }
-    Serial.println();
     pushByte(procID, sp, 0x00);           // push terminating zero
     pushByte(procID, sp, strlen(s) + 1);  // push length
     pushByte(procID, sp, 0x03);           // push string
