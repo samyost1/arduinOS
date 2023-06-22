@@ -208,11 +208,40 @@ void execute(int index) {
             digitalWrite(pin, status);
             break;
         }
-        case FORK:{
+        case FORK: {
             int type = popByte(procID, stackP);
             int size = popByte(procID, stackP);
             char* fileName = popString(procID, stackP, size);
             runProcess(fileName);
+        }
+        case IF: {
+            int jumpIfZero = EEPROM.read(address + processTable[index].pc++);
+            popByte(procID, stackP);
+            int condition = popInt(procID, stackP);
+            if (condition != 49) {  // Not equal to ASCII '1'
+                processTable[index].pc += jumpIfZero;
+                pushInt(procID, stackP, jumpIfZero);
+                break;
+            }
+            pushInt(procID, stackP, 0);
+            break;
+        }
+        case ELSE:{
+            int jumpIfNotZero = EEPROM.read(address + processTable[index].pc++);
+            popByte(procID, stackP);
+            int jumpIfZero = popInt(procID, stackP);
+            // Serial.print(F("JumpIfNotZero: "));;
+            // Serial.println(jumpIfNotZero);
+            if(jumpIfZero == 0){
+                processTable[index].pc += jumpIfNotZero;
+            }
+            pushInt(procID, stackP, 0);
+            break;
+        }
+        case ENDIF: {
+            popByte(procID, stackP);
+            popInt(procID, stackP);
+            break;
         }
 
         case 7 ... 8:
