@@ -1,85 +1,164 @@
 #include <program_execution.hpp>
 
+typedef struct {
+    int operatorName;
+    float (*func)(int type, float value);
+    int returnType;
+} operatorFunction;
+
+operatorFunction unary[] = {
+    {INCREMENT, &incrementBetter, 0},
+    {DECREMENT, &decrementBetter, 0},
+    {UNARYMINUS, &unaryminus, 0},
+    {LOGICALNOT, &logicalNot, CHAR},
+    {BITWISENOT, &bitwiseNot, 0},
+    {TOCHAR, &ToChar, CHAR},
+    {TOINT, &ToInt, INT},
+    {TOFLOAT, &ToFloat, FLOAT},
+    {ROUND, &Round, INT},
+    {FLOOR, &Floor, INT},
+    {CEIL, &Ceil, INT},
+    {ABS, &Abs, 0},
+    {SQ, &Sq, 0},
+    {SQRT, &Sqrt, 0},
+    {ANALOGREAD, &AnalogRead, INT},
+    {DIGITALREAD, &DigitalRead, CHAR},
+};
+
+int findOperatorFunc(int operatorNum) {
+    for (int i = 0; i < 16; i++) {
+        if (unary[i].operatorName == operatorNum) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void execute(int index) {
     // Execute something
-    // De instructies en hun argumenten staan in een bestand in het
-    // bestandssysteem, in het EEPROM. De PC wijst altijd naar de eerstvolgende
-    // instructie. Die moet ingelezen worden en ge¨ınterpreteerd. Dit gaat het
-    // handigst met een switch...case-structuur. Voor iedere instructie moet een
-    // stukje Arduino-code geschreven worden dat eventuele argumenten inleest,
-    // en de instructie uitvoert. Ook moet de PC telkens aangepast worden.
     int address = processTable[index].address;
     int procID = processTable[index].procID;
     int& stackP = processTable[index].sp;
     byte currentCommand = EEPROM.read(address + processTable[index].pc);
     processTable[index].pc++;
-    Serial.print(F("["));
-    Serial.print(address + processTable[index].pc);
-    Serial.print(F(", "));
-    Serial.print(processTable[index].sp);
-    Serial.print(F("] Current command: "));
-    Serial.println(currentCommand);
+    // Serial.print(F("["));
+    // Serial.print(address + processTable[index].pc);
+    // Serial.print(F(", "));
+    // Serial.print(processTable[index].sp);
+    // Serial.print(F("] Current command: "));
+    // Serial.println(currentCommand);
     switch (currentCommand) {
         case CHAR: {
-            Serial.println(F("CHAR Case"));
             char temp = (char)EEPROM.read(address + processTable[index].pc++);
             pushChar(procID, stackP, temp);
-            Serial.print(F("Stack pointer is now: "));
-            Serial.println(processTable[index].sp);
-            // Serial.println(stackP);
+            break;
+        }
+        case INT: {
+            int highByte = EEPROM.read(address + processTable[index].pc++);
+            int lowByte = EEPROM.read(address + processTable[index].pc++);
+            pushInt(procID, stackP, word(highByte, lowByte));
             break;
         }
         case STRING: {
-            Serial.println(F("STRING Case"));
+            Serial.print(F("String case"));
             char string[12];
             int pointer = 0;
             do {
-                string[pointer] =
-                    (char)EEPROM.read(address + processTable[index].pc++);
+                int temp = (int)EEPROM.read(address + processTable[index].pc++);
+                string[pointer] = (char)temp;
                 pointer++;
             } while (string[pointer - 1] != 0);
 
-            for (int i = 0; i < 12; i++) {
-                Serial.print(string[i]);
+            pushString(procID, stackP, string);
+            break;
+        }
+        case FLOAT: {
+            byte b[4];
+            for (int i = 3; i >= 0; i--) {
+                byte temp = EEPROM.read(address + processTable[index].pc++);
+                // Serial.println(temp);
+                b[i] = temp;  // pop bytes beginnend met lowbytes
             }
-            Serial.println();
+            float* f = (float*)b;
 
-            // pushString(procID,stackP, string);  //TODO fix crashing
+            pushFloat(procID, stackP, *f);
             break;
         }
         case STOP: {
-            Serial.print(F("\nProcess with pid: "));
+            Serial.print(F("Process with pid: "));
             Serial.print(procID);
             Serial.println(F(" is finished."));
             stopProcess(procID);
+            deleteAllVars(procID);
             break;
         }
-        case PRINT: {
+        case 51 ... 52: {  // PRINT and PRINTLN
+            // Serial.print(F("PRINT Case with type: "));
+            // Serial.println(type);
             int type = popByte(procID, stackP);
-            // if (type == 3){
-            //     popString(procID, stackP);
-            // }
-            // else{
+            switch (type) {
+                case CHAR:
+                    Serial.print(popChar(procID, stackP));
+                    break;
+                case INT:
+                    Serial.print(popInt(procID, stackP));
+                    break;
+                case STRING:
+                    Serial.print(popString(procID, stackP));
+                    break;
+                case FLOAT:
+                    Serial.print(popFloat(procID, stackP), 5);
+                    break;
 
-            // }
-            int length = type;
-            if (type == 3) {
-                length = popByte(procID, stackP);
+                default:
+                    break;
             }
-            for (int i = 0; i < length; i++) {
-                // Serial.print(popByte(procID, stackP));
+            if (currentCommand == 52) {
+                Serial.println();
             }
-            // Serial.print(popByte(procID));
             break;
         }
-        // case 60 ... 127: {
-        //     // Er komt een string want current command komt niet voor in
-        //     // instruction_array.h
-        //     // pushByte(processTable[index].procID, currentCommand);
-        //     break;
-        // }
+        case SET: {
+            char name = EEPROM.read(address + processTable[index].pc++);
+
+            addMemoryEntry(name, procID, stackP);
+            break;
+        }
+        case GET: {
+            char name = EEPROM.read(address + processTable[index].pc++);
+            retrieveMemoryEntry(name, procID, stackP);
+            break;
+        }
+
+        case 7 ... 8: {
+            int type = popByte(procID, stackP);
+            float value = popVal(procID, stackP, type);
+
+            float newValue =
+                unary[findOperatorFunc(currentCommand)].func(type, value);
+
+            int returnType =
+                (unary[findOperatorFunc(currentCommand)].returnType == 0)
+                    ? type
+                    : unary[findOperatorFunc(currentCommand)].returnType;
+            switch (returnType) {
+                case CHAR:
+                    pushChar(procID, stackP, (char)newValue);
+                    break;
+                case INT:
+                    pushInt(procID, stackP, (int)newValue);
+                    break;
+                case FLOAT:
+                    pushFloat(procID, stackP, (float)newValue);
+                    break;
+                default:
+                    Serial.println(F("Execute: Default case"));
+                    break;
+            }
+
+            break;
+        }
         default: {
-            // pushByte(processTable[index].procID, currentCommand);
             break;
         }
     }

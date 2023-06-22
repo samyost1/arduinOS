@@ -8,8 +8,8 @@
 int findFileInMemory(byte name, int id);
 int findAvailableSpace(int size);
 
-void addMemoryEntry(byte name, int id);
-void retrieveMemoryEntry(byte name, int id);
+void addMemoryEntry(byte name, int procID, int& stackP);
+void retrieveMemoryEntry(byte name, int procID, int& stackP);
 void deleteAllVars(int id);
 
 void saveChar(char c, int adress);

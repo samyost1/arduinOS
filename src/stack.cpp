@@ -4,22 +4,14 @@ byte stack[PROCESS_TABLE_SIZE][STACKSIZE] = {0};
 // byte sp = 0;
 
 void pushByte(int procID, int& sp, byte b) {
-    Serial.println(F("pushByte()"));
-    // Serial.println(stack[procID][sp]);
-    // stack[0][0] = b;
     stack[procID][sp++] = b;
-
-    // sp++;
-    // Serial.print(F("sp:"));
-    // Serial.println(sp);
-    // Serial.println(stack[procID][sp-1]);
 }
-byte popByte(int procID, int& sp) { 
-    return stack[procID][--sp]; 
+byte popByte(int procID, int& sp) {
+    // return stack
+    return stack[procID][--sp];
 }
 
 float popVal(int procID, int& sp, int type) {
-    // int type = popByte();
     switch (type) {
         case 1:  // Char
         {
@@ -55,7 +47,6 @@ void pushChar(int procID, int& sp, char c) {
     pushByte(procID, sp, 0x01);  // push char
 }
 char popChar(int procID, int& sp) {
-    // popByte();         // pop type Char
     return popByte(procID, sp);  // pop Char
 }
 
@@ -77,7 +68,7 @@ int popInt(int procID, int& sp) {
 
 // FLOAT
 void pushFloat(int procID, int& sp, float f) {
-    byte *b = (byte *)&f;
+    byte* b = (byte*)&f;
     for (int i = 3; i >= 0; i--) {
         // push bytes beginnend met highbytes
         // Serial.println(b[i]);
@@ -94,7 +85,7 @@ float popFloat(int procID, int& sp) {
         b[i] = temp;  // pop bytes beginnend met lowbytes
     }
 
-    float *f = (float *)b;
+    float* f = (float*)b;
 
     // Serial.print(F("float: "));
     // Serial.println(*f);
@@ -102,27 +93,25 @@ float popFloat(int procID, int& sp) {
 }
 
 // STRING
-void pushString(int procID, int& sp, char *s) {
-    Serial.println(F("Input print: "));
-    for (int i = 0; i < 12; i++) {
-        Serial.print(s[i]);
-    }
-    // Serial.println(F("before for loop"));
-    // for (int i = 0; i < strlen(s); i++) {
-    //     pushByte(procID, sp, s[i]);  // push letters
+void pushString(int procID, int& sp, char* s) {
+    // Serial.println(F("Input print: "));
+    // for (int i = 0; i < 12; i++) {
+    //     Serial.print(s[i]);
     // }
-    // Serial.println(F("after for loop"));
-    // pushByte(procID, sp, 0x00);           // push terminating zero
-    // pushByte(procID, sp, strlen(s) + 1);  // push length
-    // pushByte(procID, sp, 0x03);           // push string
+    for (int i = 0; i < strlen(s); i++) {
+        pushByte(procID, sp, s[i]);  // push letters
+    }
+    pushByte(procID, sp, 0x00);           // push terminating zero
+    pushByte(procID, sp, strlen(s) + 1);  // push length
+    pushByte(procID, sp, 0x03);           // push string
 }
-char *popString(int procID, int& sp) {
+char* popString(int procID, int& sp) {
     // popByte();               // pop type String
     int length = popByte(procID, sp);  // pop length
-    char *temp = new char[length];
+    char* temp = new char[length];
     for (int i = length - 1; i >= 0; i--) {
         byte letter = popByte(procID, sp);
-        Serial.println((char)letter);
+        // Serial.print((char)letter);
         temp[i] = letter;  // pop de letters incl. terminating zero
     }
     return temp;
@@ -143,7 +132,7 @@ void debugTestStack() {
     // Serial.println(popInt());
     // push string
     // // char temp[5] = {'h', 'e', 'l', 'l', 'o'};
-    char temp[6] = "hello";
+    // char temp[6] = "hello";
     // pushString(temp);
     // // pop string en print die
     // Serial.print(F("\n String:"));

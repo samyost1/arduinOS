@@ -40,11 +40,8 @@ void sortMemory() {
     }
 }
 
-void clear(int id) {}
-
 int findAvailableSpace(int size) {
     if (memoryTable[0].adress >= size) {
-        Serial.println(F("Space found before first entry"));
         return 0;
     }
 
@@ -53,7 +50,6 @@ int findAvailableSpace(int size) {
         int availableSpace = memoryTable[i + 1].adress -
                              (memoryTable[i].adress + memoryTable[i].length);
         if (availableSpace >= size) {
-            Serial.println(F("Enough space found"));
             return memoryTable[i].adress + memoryTable[i].length;
         }
     }
@@ -62,7 +58,6 @@ int findAvailableSpace(int size) {
     int lastEntry =
         memoryTable[noOfVars - 1].adress + memoryTable[noOfVars - 1].length;
     if (MAXRAM - (int)lastEntry >= size) {
-        Serial.println(F("Space found after last entry"));
         return lastEntry;
     }
 
@@ -70,122 +65,117 @@ int findAvailableSpace(int size) {
     return -1;
 }
 
-int findFileInMemory(byte name, int id) {
+int findFileInMemory(byte name, int procID) {
     for (int i = 0; i < noOfVars; i++) {
-        if (memoryTable[i].name == name && memoryTable[i].procID == id) {
+        if (memoryTable[i].name == name && memoryTable[i].procID == procID) {
             return i;
         }
     }
     return -1;  // Not found
 }
 
-// void addMemoryEntry(byte name, int id) {
-//     // Check if there's space in the memory table
-//     if (noOfVars >= MEMORYSIZE) {
-//         Serial.print(F("Error. Not enough space in the memory table"));
-//         return;
-//     }
+void addMemoryEntry(byte name, int procID, int& stackP) {
+    // Check if there's space in the memory table
+    if (noOfVars >= MEMORYSIZE) {
+        Serial.print(F("Error. Not enough space in the memory table"));
+        return;
+    }
 
-//     // Check if variable is already in memorytable and should be overwritten
-//     int index = findFileInMemory(name, id);
+    // Check if variable is already in memorytable and should be overwritten
+    int index = findFileInMemory(name, procID);
 
-//     if (index != -1) {
-//         // shift all variables 1 place down to delete 1 variable
-//         for (int i = index; i < noOfVars; i++) {
-//             memoryTable[i] = memoryTable[i + 1];
-//         }
-//         noOfVars--;
-//     }
+    if (index != -1) {
+        // shift all variables 1 place down to delete 1 variable
+        for (int i = index; i < noOfVars; i++) {
+            memoryTable[i] = memoryTable[i + 1];
+        }
+        noOfVars--;
+    }
 
-//     // index is noOfVars if not found in memory
-//     index = (index == -1) ? noOfVars : index;
+    index = noOfVars;
 
-//     int type = popByte(id);
-//     int size = (type != 3) ? type : popByte(id);
-//     sortMemory();
+    int type = popByte(procID, stackP);
+    int size = (type != 3) ? type : popByte(procID, stackP);
+    sortMemory();
 
-//     int newAdress = (noOfVars > 0) ? findAvailableSpace(size) : 0;
-//     // print2("newadress: ");
-//     // print1(newAdress);
-//     variable newVariable = {.name = name,
-//                             .type = type,
-//                             .length = size,
-//                             .adress = newAdress,
-//                             .procID = id};
+    int newAdress = (noOfVars > 0) ? findAvailableSpace(size) : 0;
+    // print2("newadress: ");
+    // print1(newAdress);
+    variable newVariable = {.name = name,
+                            .type = type,
+                            .length = size,
+                            .adress = newAdress,
+                            .procID = procID};
 
-//     memoryTable[index] = newVariable;
+    memoryTable[index] = newVariable;
 
-//     // Write value to correct memoryadress in reverse order
-//     // print1("newadress");
-//     // print1(newAdress);
-//     // print1("size: ");
-//     // print1(size);
-//     // print1("type: ");
-//     // print1(type);
-//     switch (type) {
-//         case 1: {
-//             /* char */
-//             saveChar(popVal(id, type), newAdress);
-//             break;
-//         }
-//         case 2: {
-//             /* int */
-//             saveInt(popVal(id, type), newAdress);
-//             break;
-//         }
-//         case 3: {
-//             /* string */
-//             char *s = popString(id);
-//             saveString(s, newAdress);
-//             break;
-//         }
-//         case 4: {
-//             /* float */
-//             saveFloat(popVal(id, type), newAdress);
-//             break;
-//         }
-//         default:
-//             break;
-//     }
+    switch (type) {
+        case 1: {
+            /* char */
+            saveChar(popVal(procID, stackP, type), newAdress);
+            break;
+        }
+        case 2: {
+            /* int */
+            saveInt(popVal(procID, stackP, type), newAdress);
+            break;
+        }
+        case 3: {
+            /* string */
+            char *s = popString(procID, stackP);
+            saveString(s, newAdress);
+            break;
+        }
+        case 4: {
+            /* float */
+            saveFloat(popVal(procID, stackP, type), newAdress);
+            break;
+        }
+        default:
+            break;
+    }
 
-//     noOfVars++;
-// }
+    noOfVars++;
+}
 
-// void retrieveMemoryEntry(byte name, int id) {
-//     int index = findFileInMemory(name, id);
-//     if (index == -1) {
-//         print1("Error. This variable doesn't exist.");
-//     }
-//     // print2("index: ");
-//     // print1(index);
+void retrieveMemoryEntry(byte name, int procID, int& stackP) {
+    int index = findFileInMemory(name, procID);
+    if (index == -1) {
+        print1("Error. This variable doesn't exist.");
+        return;
+    }
 
-//     int type = memoryTable[index].type;
-//     int length = memoryTable[index].length;
-//     switch (type) {
-//         case 1:
-//             /* char */
-//             pushChar(id, loadChar(memoryTable[index].adress));
-//             break;
+    int type = memoryTable[index].type;
+    int length = memoryTable[index].length;
+    switch (type) {
+        case 1:{
+            /* char */
+            char temp = loadChar(memoryTable[index].adress);
+            pushChar(procID, stackP, temp);
+            break;
+        }
+        case 2:{
+            /* int */
+            int temp = loadInt(memoryTable[index].adress);
+            pushInt(procID, stackP, temp);
+            break;
+        }
+        case 3:{
+            /* string */
+            pushString(procID, stackP,
+                       loadString(memoryTable[index].adress, length));
+            break;
+        }
+        case 4:{
+            /* float */
+            pushFloat(procID, stackP, loadFloat(memoryTable[index].adress));
+            break;
+        }
+        default:
+            break;
+    }
+}
 
-//         case 2:
-//             /* int */
-//             pushInt(id, loadInt(memoryTable[index].adress));
-//             break;
-
-//         case 3:
-//             /* string */
-//             pushString(id, loadString(memoryTable[index].adress, length));
-//             break;
-
-//         case 4:
-//             /* float */
-//             pushFloat(id, loadFloat(memoryTable[index].adress));
-//             break;
-
-//         default:
-//             break;
-//     }
-// }
 void saveChar(char c, int adress) { RAM[adress] = c; }
 char loadChar(int adress) { return RAM[adress]; }
 void saveInt(int i, int adress) {
@@ -207,13 +197,10 @@ void saveFloat(float f, int adress) {
 float loadFloat(int adress) {
     byte b[4];
     for (int i = 0; i < 4; i++) {
-        // print1(RAM[adress + i]);
         b[i] = RAM[adress + i];  // pop bytes beginnend met lowbytes
     }
 
     float *f = (float *)b;
-    // print1();
-    // print1(*f);
     return *f;
 }
 
@@ -231,10 +218,10 @@ char *loadString(int adress, int length) {
     return temp;
 }
 
-void deleteAllVars(int id) {
+void deleteAllVars(int procID) {
     // Delete all variables for a process
     for (int j = 0; j < noOfVars; j++) {
-        if (memoryTable[j].procID == id) {
+        if (memoryTable[j].procID == procID) {
             for (int i = j; i < noOfVars; i++) {
                 memoryTable[i] = memoryTable[i + 1];
             }
@@ -275,12 +262,18 @@ void debugTestMemory() {
     // print2("String: ");
     // print1(popString());
 
-    // for (int i = 0; i < noOfVars; i++)
-    // {
-    //     print1(memoryTable[i].name);
-    //     print1(memoryTable[i].procID);
-    //     print1(memoryTable[i].type);
-    //     print1(memoryTable[i].length);
-    //     print1(RAM[memoryTable[i].adress]);
-    // }
+    Serial.println("---- Memory Table ----");
+    for (int i = 0; i < noOfVars; i++) {
+        Serial.print("Name: ");
+        Serial.print((char)memoryTable[i].name);
+        Serial.print("\tType: ");
+        Serial.print(memoryTable[i].type);
+        Serial.print("\tLength: ");
+        Serial.print(memoryTable[i].length);
+        Serial.print("\tRAM: ");
+        Serial.print(RAM[memoryTable[i].adress]);
+        Serial.print("\tProcID: ");
+        Serial.print(memoryTable[i].procID);
+        Serial.println("-----");
+    }
 }

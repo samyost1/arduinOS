@@ -5,6 +5,7 @@
 
 #include <process.hpp>
 #include <instruction_set.h>
+#include <unary_functions.hpp>
 
 void runProcesses();
 

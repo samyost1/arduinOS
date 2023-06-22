@@ -1,0 +1,4 @@
+"test" SET q
+"passed" SET q
+GET q PRINTLN 
+STOP
