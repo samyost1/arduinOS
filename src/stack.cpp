@@ -1,6 +1,6 @@
 #include <stack.hpp>
 
-byte stack[PROCESS_TABLE_SIZE][STACKSIZE] = {0};
+byte stack[PROCESS_TABLE_SIZE][STACKSIZE] = {0};    // TODO first pointer not correct
 // byte sp = 0;
 
 void pushByte(int procID, int& sp, byte b) { stack[procID][sp++] = b; }

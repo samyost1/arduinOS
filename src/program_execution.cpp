@@ -4,9 +4,9 @@ typedef struct {
     int operatorName;
     float (*func)(int type, float value);
     int returnType;
-} operatorFunction;
+} unaryFunction;
 
-operatorFunction unary[] = {
+unaryFunction unary[] = {
     {INCREMENT, &incrementBetter, 0},
     {DECREMENT, &decrementBetter, 0},
     {UNARYMINUS, &unaryminus, 0},
@@ -25,9 +25,47 @@ operatorFunction unary[] = {
     {DIGITALREAD, &DigitalRead, CHAR},
 };
 
-int findOperatorFunc(int operatorNum) {
+typedef struct {
+    int operatorName;
+    float (*func)(float x, float y);
+    int returnType;
+} binaryFunction;
+
+binaryFunction binary[] = {
+    {PLUS, &plus, 0},
+    {MINUS, &minus, 0},
+    {TIMES, &times, 0},
+    {DIVIDEDBY, &dividedBy, 0},
+    {MODULUS, &modulus, 0},
+    {EQUALS, &equals, CHAR},
+    {NOTEQUALS, &notEquals, CHAR},
+    {LESSTHAN, &lessThan, CHAR},
+    {LESSTHANOREQUALS, &lessThanOrEquals, CHAR},
+    {GREATERTHAN, &greaterThan, CHAR},
+    {GREATERTHANOREQUALS, &greaterThanOrEquals, CHAR},
+    {MIN, &minBetter, 0},
+    {MAX, &maxBetter, 0},
+    {POW, &pow, 0},
+    {LOGICALAND, &logicalAnd, CHAR},
+    {LOGICALOR, &logicalOR, CHAR},
+    {LOGICALXOR, &logicalXOR, CHAR},
+    {BITWISEAND, &bitwiseAND, 0},
+    {BITWISEOR, &bitwiseOR, 0},
+    {BITWISEXOR, &bitwiseXOR, 0},
+};
+
+int findUnaryFunc(int operatorNum) {
     for (int i = 0; i < 16; i++) {
         if (unary[i].operatorName == operatorNum) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int findBinaryFunc(int operatorNum) {
+    for (int i = 0; i < 20; i++) {
+        if (binary[i].operatorName == operatorNum) {
             return i;
         }
     }
@@ -139,7 +177,7 @@ void execute(int index) {
             break;
         }
 
-        case 7 ... 8: 
+        case 7 ... 8:
         case 14:
         case 24:
         case 28 ... 34:
@@ -151,12 +189,12 @@ void execute(int index) {
             float value = popVal(procID, stackP, type);
 
             float newValue =
-                unary[findOperatorFunc(currentCommand)].func(type, value);
+                unary[findUnaryFunc(currentCommand)].func(type, value);
 
             int returnType =
-                (unary[findOperatorFunc(currentCommand)].returnType == 0)
+                (unary[findUnaryFunc(currentCommand)].returnType == 0)
                     ? type
-                    : unary[findOperatorFunc(currentCommand)].returnType;
+                    : unary[findUnaryFunc(currentCommand)].returnType;
             switch (returnType) {
                 case CHAR: {
                     pushChar(procID, stackP, (char)newValue);
@@ -176,10 +214,48 @@ void execute(int index) {
                     Serial.println(F("Execute: Default case"));
                     break;
             }
-
             break;
         }
+        case 9 ... 13:
+        case 15 ... 23:
+        case 25 ... 27:
+        case 35 ... 36:
+        case 40: {
+            int typeY = popByte(procID, stackP);
+            float y = popVal(procID, stackP, typeY);
+            int typeX = popByte(procID, stackP);
+            float x = popVal(procID, stackP, typeY);
+
+            float newValue = binary[findBinaryFunc(currentCommand)].func(x, y);
+            int returnType =
+                (binary[findBinaryFunc(currentCommand)].returnType == 0)
+                    ? max(typeY, typeX)
+                    : binary[findBinaryFunc(currentCommand)].returnType;
+
+            switch (returnType) {
+                case CHAR: {
+                    pushChar(procID, stackP, (char)newValue);
+                    break;
+                }
+                case INT: {
+                    pushInt(procID, stackP, (int)newValue);
+                    break;
+                }
+                case FLOAT: {
+                    // Serial.print("NewValue: ");
+                    // Serial.println((float)newValue);
+                    pushFloat(procID, stackP, (float)newValue);
+                    break;
+                }
+                default:
+                    Serial.println(F("Execute: Default case"));
+                    break;
+            }
+            break;
+        }
+
         default: {
+            Serial.println(F("Error. Unkown command."));
             break;
         }
     }
