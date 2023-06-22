@@ -170,6 +170,8 @@ void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
     // write data to the EEPROM
     fileSize++;
     for (int i = 0; i < fileSize; i++) {
+        Serial.print("Byte to be written: ");
+        Serial.println(fileData[i]);
         EEPROM.write(position, fileData[i]);
         position++;
     }
@@ -234,13 +236,6 @@ void freespaceEEPROM() {
     Serial.println(totalAvailable);
 }
 
-void debugClearEeprom() {
-    for (int i = 0; i < EEPROM.length(); i++) {
-        EEPROM.write(i, 0);
-    }
-    Serial.println("\nEEPROM CLEARED\n");
-}
-
 void printFATTable() {
     readFAT();  // Read the FAT from EEPROM
     Serial.println();
@@ -270,6 +265,13 @@ void printFATTable() {
     Serial.println("----------");
     Serial.println("End of FAT Table");
     Serial.println();
+}
+
+void debugClearEeprom() {
+    for (int i = 0; i < EEPROM.length(); i++) {
+        EEPROM.write(i, 0);
+    }
+    Serial.println("\nEEPROM CLEARED\n");
 }
 
 void debugPrintEeprom() {

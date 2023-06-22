@@ -18,6 +18,6 @@ void loop() {
 
 
     readCliInput();
-
+    // Serial.println()
     runProcesses();
 }

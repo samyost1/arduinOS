@@ -1,6 +1,5 @@
 #include <command_line_interface.hpp>
 
-
 const int BUFSIZE = 12;
 
 static char buffer[4][BUFSIZE];
@@ -108,29 +107,36 @@ bool checkNumeric() {
 }
 
 // COMMANDS:
-void store() { 
-// Store a file in file system
-    storeFile(buffer[1], atoi(buffer[2]) /*, buffer[3]*/); }
-void retrieve() { 
-// Retrieve a file from file system
-    retrieveFile(buffer[1]); }
-void erase() { 
-// Delete a file
-    eraseFile(buffer[1]); }
-void files() { 
-// Print a list of files
-    printFATTable(); }
-void freespace() { 
-// Print the available space in file system
-    freespaceEEPROM(); }
-void run() { 
-// Start a program
-    runProcess(buffer[1]); }
-void list() { 
-// Print a list of processes
-    showProcessList(); }
+void store() {
+    // Store a file in file system
+    storeFile(buffer[1], atoi(buffer[2]) /*, buffer[3]*/);
+}
+void retrieve() {
+    // Retrieve a file from file system
+    retrieveFile(buffer[1]);
+}
+void erase() {
+    // Delete a file
+    eraseFile(buffer[1]);
+}
+void files() {
+    // Print a list of files
+    printFATTable();
+}
+void freespace() {
+    // Print the available space in file system
+    freespaceEEPROM();
+}
+void run() {
+    // Start a program
+    runProcess(buffer[1]);
+}
+void list() {
+    // Print a list of processes
+    showProcessList();
+}
 void suspend() {
-// Suspend a process
+    // Suspend a process
     // int procId = (int(buffer[1][0]) > 48 || int(buffer[1][0]) < 57) ?
     if (checkNumeric()) {
         suspendProcess(atoi(buffer[1]));
@@ -139,7 +145,7 @@ void suspend() {
     }
 }
 void resume() {
-// Resume a process
+    // Resume a process
     if (checkNumeric()) {
         resumeProcess(atoi(buffer[1]));
     } else {
@@ -147,7 +153,7 @@ void resume() {
     }
 }
 void kill() {
-// Stop a process
+    // Stop a process
     if (checkNumeric()) {
         stopProcess(atoi(buffer[1]));
     } else {
@@ -156,7 +162,7 @@ void kill() {
 }
 // void kill() { debugClearEeprom(); }
 
-// -------------------------------------------------- 
+// --------------------------------------------------
 // Debug functions
 void debugMemory() { debugTestMemory(); }
 // void debugStack() { debugTestStack(); }

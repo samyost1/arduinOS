@@ -8,23 +8,34 @@ void execute(int index) {
     // handigst met een switch...case-structuur. Voor iedere instructie moet een
     // stukje Arduino-code geschreven worden dat eventuele argumenten inleest,
     // en de instructie uitvoert. Ook moet de PC telkens aangepast worden.
-
     int address = processTable[index].address;
     int procID = processTable[index].procID;
     byte currentCommand = EEPROM.read(address + processTable[index].pc);
     processTable[index].pc++;
-    Serial.print("Current command: ");
+    Serial.print("[");
+    Serial.print(address + processTable[index].pc);
+    Serial.print("] Current command: ");
     Serial.println(currentCommand);
     switch (currentCommand) {
         case STRING: {
-            // char string[12];
-            // int pointer = 0;
-            // do {
-            //     string[pointer] =
-            //         (char)EEPROM.read(address + processTable[index].pc++);
-            //     pointer++;
-            // } while (string[pointer - 1] != 0);
-            // // pushString(procID, string);
+            Serial.println("STRING Case");
+            char string[12];
+            int pointer = 0;
+            do {
+                string[pointer] =
+                    (char)EEPROM.read(address + processTable[index].pc++);
+                pointer++;
+            } while (string[pointer - 1] != 0);
+
+
+            for (int i = 0; i < 12; i++)
+            {
+                Serial.print(string[i]);
+            }
+            Serial.println();
+            
+
+            pushString(procID, string);  //TODO fix crashing
             break;
         }
         case STOP: {
@@ -63,7 +74,7 @@ void execute(int index) {
 void runProcesses() {
     // Serial.println("hier1");
     for (int i = 0; i < noOfProc; i++) {
-        // Serial.println("hier2");    
+        // Serial.println("hier2");
 
         if (processTable[i].state == 'r') {
             execute(i);
