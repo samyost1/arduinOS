@@ -139,7 +139,14 @@ void execute(int index) {
             break;
         }
 
-        case 7 ... 8: {
+        case 7 ... 8: 
+        case 14:
+        case 24:
+        case 28 ... 34:
+        case 37:
+        case 41 ... 42:
+        case 47:
+        case 49: {
             int type = popByte(procID, stackP);
             float value = popVal(procID, stackP, type);
 
