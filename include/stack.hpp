@@ -25,7 +25,7 @@ float popFloat(int procID ,int& sp);
 
 // STRING
 void pushString(int procID, int& sp,char *s);
-char *popString(int procID, int& sp);
+char *popString(int procID, int& sp, int size);
 
 void debugTestStack();
 

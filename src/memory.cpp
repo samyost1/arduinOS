@@ -74,7 +74,7 @@ int findFileInMemory(byte name, int procID) {
     return -1;  // Not found
 }
 
-void addMemoryEntry(byte name, int procID, int& stackP) {
+void addMemoryEntry(byte name, int procID, int &stackP) {
     // Check if there's space in the memory table
     if (noOfVars >= MEMORYSIZE) {
         Serial.print(F("Error. Not enough space in the memory table"));
@@ -122,7 +122,9 @@ void addMemoryEntry(byte name, int procID, int& stackP) {
         }
         case 3: {
             /* string */
-            char *s = popString(procID, stackP);
+            char *s = popString(procID, stackP, size);
+            Serial.print(F("Popped string: "));
+            Serial.println(s);
             saveString(s, newAdress);
             break;
         }
@@ -138,7 +140,7 @@ void addMemoryEntry(byte name, int procID, int& stackP) {
     noOfVars++;
 }
 
-void retrieveMemoryEntry(byte name, int procID, int& stackP) {
+void retrieveMemoryEntry(byte name, int procID, int &stackP) {
     int index = findFileInMemory(name, procID);
     if (index == -1) {
         print1("Error. This variable doesn't exist.");
@@ -148,25 +150,25 @@ void retrieveMemoryEntry(byte name, int procID, int& stackP) {
     int type = memoryTable[index].type;
     int length = memoryTable[index].length;
     switch (type) {
-        case 1:{
+        case 1: {
             /* char */
             char temp = loadChar(memoryTable[index].adress);
             pushChar(procID, stackP, temp);
             break;
         }
-        case 2:{
+        case 2: {
             /* int */
             int temp = loadInt(memoryTable[index].adress);
             pushInt(procID, stackP, temp);
             break;
         }
-        case 3:{
+        case 3: {
             /* string */
             pushString(procID, stackP,
                        loadString(memoryTable[index].adress, length));
             break;
         }
-        case 4:{
+        case 4: {
             /* float */
             pushFloat(procID, stackP, loadFloat(memoryTable[index].adress));
             break;

@@ -60,8 +60,9 @@ void execute(int index) {
             break;
         }
         case STRING: {
-            Serial.print(F("String case"));
+            // Serial.println(F("String case"));
             char string[12];
+            memset(&string[0], 0, sizeof(string));  // Empty string
             int pointer = 0;
             do {
                 int temp = (int)EEPROM.read(address + processTable[index].pc++);
@@ -104,7 +105,8 @@ void execute(int index) {
                     Serial.print(popInt(procID, stackP));
                     break;
                 case STRING:
-                    Serial.print(popString(procID, stackP));
+                    int size = popByte(procID, stackP);
+                    Serial.print(popString(procID, stackP, size));
                     break;
                 case FLOAT:
                     Serial.print(popFloat(procID, stackP), 5);
@@ -119,12 +121,14 @@ void execute(int index) {
             break;
         }
         case SET: {
+            Serial.println(F("Set case"));
             char name = EEPROM.read(address + processTable[index].pc++);
 
             addMemoryEntry(name, procID, stackP);
             break;
         }
         case GET: {
+            Serial.println(F("Get case"));
             char name = EEPROM.read(address + processTable[index].pc++);
             retrieveMemoryEntry(name, procID, stackP);
             break;
