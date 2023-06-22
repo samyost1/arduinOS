@@ -208,6 +208,12 @@ void execute(int index) {
             digitalWrite(pin, status);
             break;
         }
+        case FORK:{
+            int type = popByte(procID, stackP);
+            int size = popByte(procID, stackP);
+            char* fileName = popString(procID, stackP, size);
+            runProcess(fileName);
+        }
 
         case 7 ... 8:
         case 14:
