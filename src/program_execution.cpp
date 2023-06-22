@@ -194,18 +194,17 @@ void execute(int index) {
         }
         case PINMODE: {
             popByte(procID, stackP);
-            int pin = popInt(procID, stackP);
-            popByte(procID, stackP);
             int direction = popInt(procID, stackP);
+            popByte(procID, stackP);
+            int pin = popInt(procID, stackP);
             pinMode(pin, direction);
             break;
         }
         case DIGITALWRITE: {
-            Serial.println(F("DigitalWrite()"));
-            popByte(procID, stackP);
-            int pin = popInt(procID, stackP);
             popByte(procID, stackP);
             int status = popInt(procID, stackP);
+            popByte(procID, stackP);
+            int pin = popInt(procID, stackP);
             digitalWrite(pin, status);
             break;
         }
