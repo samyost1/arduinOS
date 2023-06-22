@@ -54,6 +54,7 @@ binaryFunction binary[] = {
     {BITWISEXOR, &bitwiseXOR, 0},
 };
 
+// Function to find the index of a unary function in the unary array
 int findUnaryFunc(int operatorNum) {
     for (int i = 0; i < 16; i++) {
         if (unary[i].operatorName == operatorNum) {
@@ -63,6 +64,7 @@ int findUnaryFunc(int operatorNum) {
     return -1;
 }
 
+// Function to find the index of a binary function in the binary array
 int findBinaryFunc(int operatorNum) {
     for (int i = 0; i < 20; i++) {
         if (binary[i].operatorName == operatorNum) {
@@ -72,6 +74,7 @@ int findBinaryFunc(int operatorNum) {
     return -1;
 }
 
+// Function to execute a process at a given index in the processTable
 void execute(int index) {
     // Execute something
     int address = processTable[index].address;
@@ -79,26 +82,22 @@ void execute(int index) {
     int& stackP = processTable[index].sp;
     byte currentCommand = EEPROM.read(address + processTable[index].pc);
     processTable[index].pc++;
-    // Serial.print(F("["));
-    // Serial.print(address + processTable[index].pc);
-    // Serial.print(F(", "));
-    // Serial.print(processTable[index].sp);
-    // Serial.print(F("] Current command: "));
-    // Serial.println(currentCommand);
     switch (currentCommand) {
         case CHAR: {
+            // Handle CHAR command
             char temp = (char)EEPROM.read(address + processTable[index].pc++);
             pushChar(procID, stackP, temp);
             break;
         }
         case INT: {
+            // Handle INT command
             int highByte = EEPROM.read(address + processTable[index].pc++);
             int lowByte = EEPROM.read(address + processTable[index].pc++);
             pushInt(procID, stackP, word(highByte, lowByte));
             break;
         }
         case STRING: {
-            // Serial.println(F("String case"));
+            // Handle STRING command
             char string[12];
             memset(&string[0], 0, sizeof(string));  // Empty string
             int pointer = 0;
@@ -112,6 +111,7 @@ void execute(int index) {
             break;
         }
         case FLOAT: {
+            // Handle FLOAT command
             byte b[4];
             for (int i = 3; i >= 0; i--) {
                 byte temp = EEPROM.read(address + processTable[index].pc++);
@@ -124,6 +124,7 @@ void execute(int index) {
             break;
         }
         case STOP: {
+            // Handle STOP command
             Serial.print(F("Process with pid: "));
             Serial.print(procID);
             Serial.println(F(" is finished."));
@@ -133,8 +134,7 @@ void execute(int index) {
             break;
         }
         case 51 ... 52: {  // PRINT and PRINTLN
-            // Serial.print(F("PRINT Case with type: "));
-            // Serial.println(type);
+            // Handle PRINT and PRINTLN commands
             int type = popByte(procID, stackP);
             switch (type) {
                 case CHAR: {
@@ -163,17 +163,50 @@ void execute(int index) {
             break;
         }
         case SET: {
-            // Serial.println(F("Set case"));
+            // Handle SET command
             char name = EEPROM.read(address + processTable[index].pc++);
 
             addMemoryEntry(name, procID, stackP);
             break;
         }
         case GET: {
-            // Serial.println(F("Get case"));
-
+            // Handle GET command
             char name = EEPROM.read(address + processTable[index].pc++);
             retrieveMemoryEntry(name, procID, stackP);
+            break;
+        }
+        case DELAY: {
+            break;
+        }
+        case DELAYUNTIL: {
+            popByte(procID, stackP);
+            int temp = popInt(procID, stackP);
+            int mil = millis();
+            if (temp > mil) {
+                processTable[index].pc--;
+                pushInt(procID, stackP, temp);
+            }
+            break;
+        }
+        case MILLIS: {
+            pushInt(procID, stackP, millis());
+            break;
+        }
+        case PINMODE: {
+            popByte(procID, stackP);
+            int pin = popInt(procID, stackP);
+            popByte(procID, stackP);
+            int direction = popInt(procID, stackP);
+            pinMode(pin, direction);
+            break;
+        }
+        case DIGITALWRITE: {
+            Serial.println(F("DigitalWrite()"));
+            popByte(procID, stackP);
+            int pin = popInt(procID, stackP);
+            popByte(procID, stackP);
+            int status = popInt(procID, stackP);
+            digitalWrite(pin, status);
             break;
         }
 
@@ -185,6 +218,7 @@ void execute(int index) {
         case 41 ... 42:
         case 47:
         case 49: {
+            // Handle unary functions
             int type = popByte(procID, stackP);
             float value = popVal(procID, stackP, type);
 
@@ -205,8 +239,6 @@ void execute(int index) {
                     break;
                 }
                 case FLOAT: {
-                    // Serial.print("NewValue: ");
-                    // Serial.println((float)newValue);
                     pushFloat(procID, stackP, (float)newValue);
                     break;
                 }
@@ -221,6 +253,7 @@ void execute(int index) {
         case 25 ... 27:
         case 35 ... 36:
         case 40: {
+            // Handle binary functions
             int typeY = popByte(procID, stackP);
             float y = popVal(procID, stackP, typeY);
             int typeX = popByte(procID, stackP);
