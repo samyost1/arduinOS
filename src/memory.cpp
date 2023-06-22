@@ -44,7 +44,7 @@ void clear(int id) {}
 
 int findAvailableSpace(int size) {
     if (memoryTable[0].adress >= size) {
-        Serial.println("Space found before first entry");
+        Serial.println(F("Space found before first entry"));
         return 0;
     }
 
@@ -53,7 +53,7 @@ int findAvailableSpace(int size) {
         int availableSpace = memoryTable[i + 1].adress -
                              (memoryTable[i].adress + memoryTable[i].length);
         if (availableSpace >= size) {
-            Serial.println("Enough space found");
+            Serial.println(F("Enough space found"));
             return memoryTable[i].adress + memoryTable[i].length;
         }
     }
@@ -62,7 +62,7 @@ int findAvailableSpace(int size) {
     int lastEntry =
         memoryTable[noOfVars - 1].adress + memoryTable[noOfVars - 1].length;
     if (MAXRAM - (int)lastEntry >= size) {
-        Serial.println("Space found after last entry");
+        Serial.println(F("Space found after last entry"));
         return lastEntry;
     }
 
@@ -79,113 +79,113 @@ int findFileInMemory(byte name, int id) {
     return -1;  // Not found
 }
 
-void addMemoryEntry(byte name, int id) {
-    // Check if there's space in the memory table
-    if (noOfVars >= MEMORYSIZE) {
-        Serial.print("Error. Not enough space in the memory table");
-        return;
-    }
+// void addMemoryEntry(byte name, int id) {
+//     // Check if there's space in the memory table
+//     if (noOfVars >= MEMORYSIZE) {
+//         Serial.print(F("Error. Not enough space in the memory table"));
+//         return;
+//     }
 
-    // Check if variable is already in memorytable and should be overwritten
-    int index = findFileInMemory(name, id);
+//     // Check if variable is already in memorytable and should be overwritten
+//     int index = findFileInMemory(name, id);
 
-    if (index != -1) {
-        // shift all variables 1 place down to delete 1 variable
-        for (int i = index; i < noOfVars; i++) {
-            memoryTable[i] = memoryTable[i + 1];
-        }
-        noOfVars--;
-    }
+//     if (index != -1) {
+//         // shift all variables 1 place down to delete 1 variable
+//         for (int i = index; i < noOfVars; i++) {
+//             memoryTable[i] = memoryTable[i + 1];
+//         }
+//         noOfVars--;
+//     }
 
-    // index is noOfVars if not found in memory
-    index = (index == -1) ? noOfVars : index;
+//     // index is noOfVars if not found in memory
+//     index = (index == -1) ? noOfVars : index;
 
-    int type = popByte(id);
-    int size = (type != 3) ? type : popByte(id);
-    sortMemory();
+//     int type = popByte(id);
+//     int size = (type != 3) ? type : popByte(id);
+//     sortMemory();
 
-    int newAdress = (noOfVars > 0) ? findAvailableSpace(size) : 0;
-    // print2("newadress: ");
-    // print1(newAdress);
-    variable newVariable = {.name = name,
-                            .type = type,
-                            .length = size,
-                            .adress = newAdress,
-                            .procID = id};
+//     int newAdress = (noOfVars > 0) ? findAvailableSpace(size) : 0;
+//     // print2("newadress: ");
+//     // print1(newAdress);
+//     variable newVariable = {.name = name,
+//                             .type = type,
+//                             .length = size,
+//                             .adress = newAdress,
+//                             .procID = id};
 
-    memoryTable[index] = newVariable;
+//     memoryTable[index] = newVariable;
 
-    // Write value to correct memoryadress in reverse order
-    // print1("newadress");
-    // print1(newAdress);
-    // print1("size: ");
-    // print1(size);
-    // print1("type: ");
-    // print1(type);
-    switch (type) {
-        case 1: {
-            /* char */
-            saveChar(popVal(id, type), newAdress);
-            break;
-        }
-        case 2: {
-            /* int */
-            saveInt(popVal(id, type), newAdress);
-            break;
-        }
-        case 3: {
-            /* string */
-            char *s = popString(id);
-            saveString(s, newAdress);
-            break;
-        }
-        case 4: {
-            /* float */
-            saveFloat(popVal(id, type), newAdress);
-            break;
-        }
-        default:
-            break;
-    }
+//     // Write value to correct memoryadress in reverse order
+//     // print1("newadress");
+//     // print1(newAdress);
+//     // print1("size: ");
+//     // print1(size);
+//     // print1("type: ");
+//     // print1(type);
+//     switch (type) {
+//         case 1: {
+//             /* char */
+//             saveChar(popVal(id, type), newAdress);
+//             break;
+//         }
+//         case 2: {
+//             /* int */
+//             saveInt(popVal(id, type), newAdress);
+//             break;
+//         }
+//         case 3: {
+//             /* string */
+//             char *s = popString(id);
+//             saveString(s, newAdress);
+//             break;
+//         }
+//         case 4: {
+//             /* float */
+//             saveFloat(popVal(id, type), newAdress);
+//             break;
+//         }
+//         default:
+//             break;
+//     }
 
-    noOfVars++;
-}
+//     noOfVars++;
+// }
 
-void retrieveMemoryEntry(byte name, int id) {
-    int index = findFileInMemory(name, id);
-    if (index == -1) {
-        print1("Error. This variable doesn't exist.");
-    }
-    // print2("index: ");
-    // print1(index);
+// void retrieveMemoryEntry(byte name, int id) {
+//     int index = findFileInMemory(name, id);
+//     if (index == -1) {
+//         print1("Error. This variable doesn't exist.");
+//     }
+//     // print2("index: ");
+//     // print1(index);
 
-    int type = memoryTable[index].type;
-    int length = memoryTable[index].length;
-    switch (type) {
-        case 1:
-            /* char */
-            pushChar(id, loadChar(memoryTable[index].adress));
-            break;
+//     int type = memoryTable[index].type;
+//     int length = memoryTable[index].length;
+//     switch (type) {
+//         case 1:
+//             /* char */
+//             pushChar(id, loadChar(memoryTable[index].adress));
+//             break;
 
-        case 2:
-            /* int */
-            pushInt(id, loadInt(memoryTable[index].adress));
-            break;
+//         case 2:
+//             /* int */
+//             pushInt(id, loadInt(memoryTable[index].adress));
+//             break;
 
-        case 3:
-            /* string */
-            pushString(id, loadString(memoryTable[index].adress, length));
-            break;
+//         case 3:
+//             /* string */
+//             pushString(id, loadString(memoryTable[index].adress, length));
+//             break;
 
-        case 4:
-            /* float */
-            pushFloat(id, loadFloat(memoryTable[index].adress));
-            break;
+//         case 4:
+//             /* float */
+//             pushFloat(id, loadFloat(memoryTable[index].adress));
+//             break;
 
-        default:
-            break;
-    }
-}
+//         default:
+//             break;
+//     }
+// }
 void saveChar(char c, int adress) { RAM[adress] = c; }
 char loadChar(int adress) { return RAM[adress]; }
 void saveInt(int i, int adress) {

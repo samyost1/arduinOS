@@ -72,7 +72,7 @@ bool checkCommandMatch() {
         if (strcmp(command[i].name, buffer[0]) == 0) {
             if (argumentCounter != command[i].numberOfArguments) {
                 Serial.print(command[i].numberOfArguments);
-                Serial.println(" arguments required");
+                Serial.println(F(" arguments required"));
             } else {
                 foundMatch = true;
 
@@ -82,16 +82,16 @@ bool checkCommandMatch() {
         }
     }
     if (!foundMatch) {
-        Serial.print("Command: '");
+        Serial.print(F("Command: '"));
         Serial.print(buffer[0]);
-        Serial.println("' not found. Available commands:");
+        Serial.println(F("' not found. Available commands:"));
 
         for (int i = 0; i < commandLength; i++) {
-            Serial.print("'");
+            Serial.print(F("'"));
             Serial.print(command[i].name);
-            Serial.print("' ");
+            Serial.print(F("' "));
         }
-        Serial.println(".");
+        Serial.println(F("."));
     }
 
     return foundMatch;
@@ -141,7 +141,7 @@ void suspend() {
     if (checkNumeric()) {
         suspendProcess(atoi(buffer[1]));
     } else {
-        Serial.println("Error. Invalid process ID.");
+        Serial.println(F("Error. Invalid process ID."));
     }
 }
 void resume() {
@@ -149,7 +149,7 @@ void resume() {
     if (checkNumeric()) {
         resumeProcess(atoi(buffer[1]));
     } else {
-        Serial.println("Error. Invalid process ID.");
+        Serial.println(F("Error. Invalid process ID."));
     }
 }
 void kill() {
@@ -157,7 +157,7 @@ void kill() {
     if (checkNumeric()) {
         stopProcess(atoi(buffer[1]));
     } else {
-        Serial.println("Error. Invalid process ID.");
+        Serial.println(F("Error. Invalid process ID."));
     }
 }
 // void kill() { debugClearEeprom(); }

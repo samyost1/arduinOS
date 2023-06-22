@@ -10,15 +10,27 @@ void execute(int index) {
     // en de instructie uitvoert. Ook moet de PC telkens aangepast worden.
     int address = processTable[index].address;
     int procID = processTable[index].procID;
+    int& stackP = processTable[index].sp;
     byte currentCommand = EEPROM.read(address + processTable[index].pc);
     processTable[index].pc++;
-    Serial.print("[");
+    Serial.print(F("["));
     Serial.print(address + processTable[index].pc);
-    Serial.print("] Current command: ");
+    Serial.print(F(", "));
+    Serial.print(processTable[index].sp);
+    Serial.print(F("] Current command: "));
     Serial.println(currentCommand);
     switch (currentCommand) {
+        case CHAR: {
+            Serial.println(F("CHAR Case"));
+            char temp = (char)EEPROM.read(address + processTable[index].pc++);
+            pushChar(procID, stackP, temp);
+            Serial.print(F("Stack pointer is now: "));
+            Serial.println(processTable[index].sp);
+            // Serial.println(stackP);
+            break;
+        }
         case STRING: {
-            Serial.println("STRING Case");
+            Serial.println(F("STRING Case"));
             char string[12];
             int pointer = 0;
             do {
@@ -27,32 +39,35 @@ void execute(int index) {
                 pointer++;
             } while (string[pointer - 1] != 0);
 
-
-            for (int i = 0; i < 12; i++)
-            {
+            for (int i = 0; i < 12; i++) {
                 Serial.print(string[i]);
             }
             Serial.println();
-            
 
-            pushString(procID, string);  //TODO fix crashing
+            // pushString(procID,stackP, string);  //TODO fix crashing
             break;
         }
         case STOP: {
-            Serial.print("\nProcess with pid: ");
+            Serial.print(F("\nProcess with pid: "));
             Serial.print(procID);
-            Serial.println(" is finished.");
+            Serial.println(F(" is finished."));
             stopProcess(procID);
             break;
         }
         case PRINT: {
-            int type = popByte(procID);
+            int type = popByte(procID, stackP);
+            // if (type == 3){
+            //     popString(procID, stackP);
+            // }
+            // else{
+
+            // }
             int length = type;
             if (type == 3) {
-                length = popByte(procID);
+                length = popByte(procID, stackP);
             }
             for (int i = 0; i < length; i++) {
-                Serial.print(popByte(procID));
+                // Serial.print(popByte(procID, stackP));
             }
             // Serial.print(popByte(procID));
             break;
@@ -60,7 +75,6 @@ void execute(int index) {
         // case 60 ... 127: {
         //     // Er komt een string want current command komt niet voor in
         //     // instruction_array.h
-        //     Serial.println("hier");
         //     // pushByte(processTable[index].procID, currentCommand);
         //     break;
         // }
@@ -72,10 +86,7 @@ void execute(int index) {
 }
 
 void runProcesses() {
-    // Serial.println("hier1");
     for (int i = 0; i < noOfProc; i++) {
-        // Serial.println("hier2");
-
         if (processTable[i].state == 'r') {
             execute(i);
         }

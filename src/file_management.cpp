@@ -103,8 +103,8 @@ int findFileInFAT(const char* fileName) {
 }
 
 void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
-    Serial.println("Input File Data:");
-    Serial.print(">");
+    Serial.println(F("Input File Data:"));
+    Serial.print(F(">"));
     char fileData[fileSize];
     while (Serial.available() == 0) {
         // Wait till end of input
@@ -126,30 +126,30 @@ void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
         delayMicroseconds(1042);
     }
 
-    Serial.print("WriteFile for File: '");
+    Serial.print(F("WriteFile for File: '"));
     Serial.print(filename);
-    Serial.print("', size: '");
+    Serial.print(F("', size: '"));
     Serial.print(fileSize);
-    Serial.println("'.");
+    Serial.println(F("'."));
 
     readFAT();  // Ensure FAT is up to date with EEPROM
 
     if (noOfFiles >= MAX_FILES) {
         Serial.println(
-            "Maximum number of files reached. Cannot store the file.");
+            F("Maximum number of files reached. Cannot store the file."));
         return;
     }
     if (findFileInFAT(filename) != -1) {
         Serial.println(
-            "File with the same name already exists. Please choose a different "
-            "name.");
+            F("File with the same name already exists. Please choose a different "
+            "name."));
         return;
     }
 
     // Find an available position to store the file
     int position = findAvailablePosition(fileSize);
     if (position == -1) {
-        Serial.println("Error: No space left for file.");
+        Serial.println(F("Error: No space left for file."));
         return;
     }
     // --------------------------
@@ -170,13 +170,13 @@ void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
     // write data to the EEPROM
     fileSize++;
     for (int i = 0; i < fileSize; i++) {
-        Serial.print("Byte to be written: ");
+        Serial.print(F("Byte to be written: "));
         Serial.println(fileData[i]);
         EEPROM.write(position, fileData[i]);
         position++;
     }
 
-    Serial.println("Storing done.");
+    Serial.println(F("Storing done."));
 }
 
 // Function to retrieve and print a file from the file system
@@ -186,19 +186,19 @@ void retrieveFile(const char* filename) {
     // Check if file exists
     int fatIndex = findFileInFAT(filename);
     if (fatIndex == -1) {
-        Serial.println("File not found.");
+        Serial.println(F("File not found."));
         return;
     }
 
     int fileIndex = FAT[fatIndex].beginPosition;
 
-    Serial.print("\nContent: ");
+    Serial.print(F("\nContent: "));
     for (int i = 0; i < FAT[fatIndex].length; i++) {
         Serial.print((char)EEPROM.read(fileIndex));
         fileIndex++;
     }
-    Serial.print("\n");
-    Serial.println("End of File Content.");
+    Serial.print(F("\n"));
+    Serial.println(F("End of File Content."));
 }
 
 void eraseFile(const char* fileName) {
@@ -206,7 +206,7 @@ void eraseFile(const char* fileName) {
     readFAT();
     int fatIndex = findFileInFAT(fileName);
     if (fatIndex == -1) {
-        Serial.println("File not found.");
+        Serial.println(F("File not found."));
         return;
     }
 
@@ -218,7 +218,7 @@ void eraseFile(const char* fileName) {
     noOfFiles--;
 
     writeFAT();
-    Serial.print("Erased: ");
+    Serial.print(F("Erased: "));
     Serial.println(fileName);
 }
 
@@ -232,38 +232,38 @@ void freespaceEEPROM() {
         usedSpace += FAT[i].length;
     }
     int totalAvailable = EEPROM.length() - systemMemory - usedSpace;
-    Serial.print("Available space: ");
+    Serial.print(F("Available space: "));
     Serial.println(totalAvailable);
 }
 
 void printFATTable() {
     readFAT();  // Read the FAT from EEPROM
     Serial.println();
-    Serial.println("Number of files:");
+    Serial.println(F("Number of files:"));
     Serial.println(noOfFiles);
-    Serial.println("FAT Table:");
-    Serial.println("----------");
+    Serial.println(F("FAT Table:"));
+    Serial.println(F("----------"));
 
     for (int i = 0; i < noOfFiles; i++) {
-        Serial.print("File ");
+        Serial.print(F("File "));
         Serial.print(i);
-        Serial.print(": Name=");
+        Serial.print(F(": Name="));
         Serial.print(FAT[i].name);
-        Serial.print(", Begin Position=");
+        Serial.print(F(", Begin Position="));
         Serial.print(FAT[i].beginPosition);
-        Serial.print(", Length=");
+        Serial.print(F(", Length="));
         Serial.println(FAT[i].length);
 
-        Serial.println("File Data:");
+        Serial.println(F("File Data:"));
         for (int j = 0; j < FAT[i].length; j++) {
             char data = EEPROM.read(FAT[i].beginPosition + j);
             Serial.print(data);
         }
         Serial.println();
-        Serial.println("----------");
+        Serial.println(F("----------"));
     }
-    Serial.println("----------");
-    Serial.println("End of FAT Table");
+    Serial.println(F("----------"));
+    Serial.println(F("End of FAT Table"));
     Serial.println();
 }
 
@@ -271,17 +271,17 @@ void debugClearEeprom() {
     for (int i = 0; i < EEPROM.length(); i++) {
         EEPROM.write(i, 0);
     }
-    Serial.println("\nEEPROM CLEARED\n");
+    Serial.println(F("\nEEPROM CLEARED\n"));
 }
 
 void debugPrintEeprom() {
     for (int i = 0; i < EEPROM.length(); i++) {
         if (EEPROM[i] != 0) {
-            Serial.print('-');
+            Serial.print(F("-"));
             Serial.println(i);
             Serial.println(EEPROM.read(i));
         }
     }
-    Serial.println("End of EEPROM");
+    Serial.println(F("End of EEPROM"));
     Serial.println();
 }

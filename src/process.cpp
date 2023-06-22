@@ -30,21 +30,21 @@ int findPid(int id)
 void changeProcessState(int processIndex, char state) {
     // Change the state of a process in the process table
     if (state != 'r' && state != 'p' && state != '0') {
-        Serial.println("Not a valid state");
+        Serial.println(F("Not a valid state"));
         return;
     }
     if (processTable[processIndex].state == state) {
-        Serial.print("Process already in ");
+        Serial.print(F("Process already in "));
         Serial.print(state);
-        Serial.println(" state");
+        Serial.println(F(" state"));
         return;
     }
     processTable[processIndex].state = state;
-    Serial.print("State of process '");
+    Serial.print(F("State of process '"));
     Serial.print(processTable[processIndex].procID);
-    Serial.print("' changed to '");
+    Serial.print(F("' changed to '"));
     Serial.print(state);
-    Serial.println("'");
+    Serial.println(F("'"));
 }
 
 void runProcess(const char *filename) {
@@ -52,14 +52,14 @@ void runProcess(const char *filename) {
 
     // Check if process table has space
     if (noOfProc >= PROCESS_TABLE_SIZE) {
-        Serial.println("Error. Not enough space in the process table");
+        Serial.println(F("Error. Not enough space in the process table"));
         return;
     }
     // Check if file exists
     int fileIndex = findFileInFAT(filename);
     
     if (fileIndex == -1) {
-        Serial.println("File does not exist.");
+        Serial.println(F("File does not exist."));
         return;
     }
 
@@ -77,23 +77,23 @@ void runProcess(const char *filename) {
 
     processTable[noOfProc++] = newProcess;
 
-    Serial.print("Proces: ");
+    Serial.print(F("Proces: "));
     Serial.print(newProcess.procID);
-    Serial.println(" has been started");
+    Serial.println(F(" has been started"));
 }
 
 // Suspend a process by changing its state to paused
 void suspendProcess(int id) {
-    Serial.print("Suspending process ");
+    Serial.print(F("Suspending process "));
     Serial.println(id);
     int processIndex = findPid(id);
     if (processIndex == -1) {
-        Serial.println("processId doesn't exist");
+        Serial.println(F("processId doesn't exist"));
         return;
     }
 
     if (processTable[processIndex].state == '0') {
-        Serial.println("Process already ended");
+        Serial.println(F("Process already ended"));
         return;
     }
 
@@ -104,12 +104,12 @@ void suspendProcess(int id) {
 void resumeProcess(int id) {
     int processIndex = findPid(id);
     if (processIndex == -1) {
-        Serial.println("processId doesn't exist");
+        Serial.println(F("processId doesn't exist"));
         return;
     }
 
     if (processTable[processIndex].state == '0') {
-        Serial.println("Process already ended");
+        Serial.println(F("Process already ended"));
         return;
     }
 
@@ -120,12 +120,12 @@ void resumeProcess(int id) {
 void stopProcess(int id) {
     int processIndex = findPid(id);
     if (processIndex == -1) {
-        Serial.println("processId doesn't exist");
+        Serial.println(F("processId doesn't exist"));
         return;
     }
 
     if (processTable[processIndex].state == '0') {
-        Serial.println("Process already ended");
+        Serial.println(F("Process already ended"));
         return;
     }
     // Delete all variables of process from memory
@@ -146,15 +146,15 @@ void stopProcess(int id) {
 
 // Show the list of processes with their ID, state, and name
 void showProcessList() {
-    Serial.println("Process List:");
+    Serial.println(F("Process List:"));
 
     for (int i = 0; i < noOfProc; i++) {
         if (processTable[i].state != '0') {
-            Serial.print("ID: ");
+            Serial.print(F("ID: "));
             Serial.print(processTable[i].procID);
-            Serial.print(" | Status: ");
+            Serial.print(F(" | Status: "));
             Serial.print(processTable[i].state);
-            Serial.print(" | Name: ");
+            Serial.print(F(" | Name: "));
             Serial.println(processTable[i].name);
         }
     }
