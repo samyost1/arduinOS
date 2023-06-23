@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <process.hpp>
 
-const int STACKSIZE = 16;
+const int STACKSIZE = 32;
 
 void pushByte(int procID, int& sp, byte b);
 byte popByte(int procID, int& sp);

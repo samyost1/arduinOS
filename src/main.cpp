@@ -1,3 +1,7 @@
+// Sam Yost (1030197)
+// In samenwerking met Arthur Struik
+// Aangegeven bij Wouter Bergmann Tiest
+
 #include <Arduino.h>
 
 #include <command_line_interface.hpp>

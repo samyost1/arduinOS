@@ -27,7 +27,7 @@
 
 #include "instruction_array.h"
 
-// #ifdef _WIN32
+#ifdef _WIN32
 #include <windows.h>
 #define BPS 9600
 
@@ -63,43 +63,43 @@ int writeLine(HANDLE h, char *buffer) {
     strcat(buffer, "\n");
     return writeBuffer(h, buffer, strlen(buffer));
 }
-// #else  // Linux and MacOS
-// #include <fcntl.h>
-// #include <sys/ioctl.h>
-// #include <termios.h>
-// #define BPS B9600
+#else  // Linux and MacOS
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#define BPS B9600
 
-// // Read all available characters from serial stream pointed to by h
-// // Copy characters into buf
-// // Append a terminating zero
-// // Return number of characters read
-// ssize_t readAll(int h, char *buf) {
-//     int bytesAvailable;
-//     ioctl(h, FIONREAD, &bytesAvailable);
-//     ssize_t bytesRead = 0, n;
-//     while (bytesRead < bytesAvailable) {
-//         n = read(h, buf, bytesAvailable - bytesRead);
-//         bytesRead += n;
-//         buf += n;
-//     }
-//     *buf = '\0';
-//     return bytesRead;
-// }
+// Read all available characters from serial stream pointed to by h
+// Copy characters into buf
+// Append a terminating zero
+// Return number of characters read
+ssize_t readAll(int h, char *buf) {
+    int bytesAvailable;
+    ioctl(h, FIONREAD, &bytesAvailable);
+    ssize_t bytesRead = 0, n;
+    while (bytesRead < bytesAvailable) {
+        n = read(h, buf, bytesAvailable - bytesRead);
+        bytesRead += n;
+        buf += n;
+    }
+    *buf = '\0';
+    return bytesRead;
+}
 
-// // Write buffer to serial stream pointed to by h
-// // Return number of characters written
-// ssize_t writeBuffer(int h, unsigned char *buffer, int noOfBytes) {
-//     return write(h, buffer, noOfBytes);
-// }
+// Write buffer to serial stream pointed to by h
+// Return number of characters written
+ssize_t writeBuffer(int h, unsigned char *buffer, int noOfBytes) {
+    return write(h, buffer, noOfBytes);
+}
 
-// // Append a newline character to buffer
-// // Write to serial stream pointed to by h
-// // Return number of characters written
-// ssize_t writeLine(int h, char *buffer) {
-//     strcat(buffer, "\n");
-//     return write(h, buffer, strlen(buffer));
-// }
-// #endif
+// Append a newline character to buffer
+// Write to serial stream pointed to by h
+// Return number of characters written
+ssize_t writeLine(int h, char *buffer) {
+    strcat(buffer, "\n");
+    return write(h, buffer, strlen(buffer));
+}
+#endif
 
 // Return true if character is space, tab, carriage return or newline
 int isWhiteSpace(char c) {
