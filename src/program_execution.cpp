@@ -213,6 +213,18 @@ void execute(int index) {
             int size = popByte(procID, stackP);
             char* fileName = popString(procID, stackP, size);
             runProcess(fileName);
+            pushInt(procID,stackP,procID+1);
+            break;
+        }
+        case WAITUNTILDONE: {
+            popByte(procID,stackP);
+            int runningID = popInt(procID, stackP);
+            char state = processTable[runningID].state;
+            if(state == 'r' || state == 'p') {
+                processTable[procID].pc--;
+                pushInt(procID, stackP, runningID);
+            } 
+            break;
         }
         case IF: {
             int jumpIfZero = EEPROM.read(address + processTable[index].pc++);

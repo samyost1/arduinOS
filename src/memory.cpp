@@ -123,8 +123,6 @@ void addMemoryEntry(byte name, int procID, int &stackP) {
         case 3: {
             /* string */
             char *s = popString(procID, stackP, size);
-            // Serial.print(F("Popped string: "));
-            // Serial.println(s);
             saveString(s, newAdress);
             break;
         }
@@ -266,16 +264,16 @@ void debugTestMemory() {
 
     Serial.println("---- Memory Table ----");
     for (int i = 0; i < noOfVars; i++) {
-        Serial.print("Name: ");
+        Serial.print(F("Name: "));
         Serial.print((char)memoryTable[i].name);
-        Serial.print("\tType: ");
+        Serial.print(F("\tType: "));
         Serial.print(memoryTable[i].type);
-        Serial.print("\tLength: ");
+        Serial.print(F("\tLength: "));
         Serial.print(memoryTable[i].length);
-        Serial.print("\tRAM: ");
+        Serial.print(F("\tRAM: "));
         Serial.print(RAM[memoryTable[i].adress]);
-        Serial.print("\tProcID: ");
+        Serial.print(F("\tProcID: "));
         Serial.print(memoryTable[i].procID);
-        Serial.println("-----");
+        Serial.println(F("-----"));
     }
 }

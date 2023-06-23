@@ -40,11 +40,6 @@ void changeProcessState(int processIndex, char state) {
         return;
     }
     processTable[processIndex].state = state;
-    Serial.print(F("State of process '"));
-    Serial.print(processTable[processIndex].procID);
-    Serial.print(F("' changed to '"));
-    Serial.print(state);
-    Serial.println(F("'"));
 }
 
 void runProcess(const char *filename) {
@@ -158,4 +153,5 @@ void showProcessList() {
             Serial.println(processTable[i].name);
         }
     }
+    Serial.println(F("----------"));
 }

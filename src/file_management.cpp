@@ -140,8 +140,8 @@ void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
         return;
     }
     if (findFileInFAT(filename) != -1) {
-        Serial.println(
-            F("File with the same name already exists. Please choose a different "
+        Serial.println(F(
+            "File with the same name already exists. Please choose a different "
             "name."));
         return;
     }
@@ -170,8 +170,6 @@ void storeFile(const char* filename, int fileSize /*, const char* fileData*/) {
     // write data to the EEPROM
     fileSize++;
     for (int i = 0; i < fileSize; i++) {
-        Serial.print(F("Byte to be written: "));
-        Serial.println(fileData[i]);
         EEPROM.write(position, fileData[i]);
         position++;
     }
@@ -245,21 +243,14 @@ void printFATTable() {
     Serial.println(F("----------"));
 
     for (int i = 0; i < noOfFiles; i++) {
-        Serial.print(F("File "));
         Serial.print(i);
         Serial.print(F(": Name="));
         Serial.print(FAT[i].name);
-        Serial.print(F(", Begin Position="));
+        Serial.print(F("     \tAddress = "));
         Serial.print(FAT[i].beginPosition);
-        Serial.print(F(", Length="));
+        Serial.print(F("\tLength = "));
         Serial.println(FAT[i].length);
 
-        Serial.println(F("File Data:"));
-        for (int j = 0; j < FAT[i].length; j++) {
-            char data = EEPROM.read(FAT[i].beginPosition + j);
-            Serial.print(data);
-        }
-        Serial.println();
         Serial.println(F("----------"));
     }
     Serial.println(F("----------"));
